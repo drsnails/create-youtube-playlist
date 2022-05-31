@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang=en>
+
+<head>
+    <meta charset=UTF-8>
+    <meta http-equiv=X-UA-Compatible content=IE=edge>
+    <title>youtubeAddToQueue</title>
+    <link rel=stylesheet href=css/style.css>
+</head>
+
+
+<body>
+    <div class="main">
+        <div class="create-playlist">
+            <!-- <span data-tooltip="Type comma for multiple words"> -->
+            <input type="text" name="search-term" id="" placeholder="Search">
+            <!-- </span> -->
+            <button class="add-to-q">
+                <span>Create Playlist</span>
+                <img class="hide" src="./img/oval.svg" alt="">
+            </button>
+        </div>
+        <div class="load-videos">
+            <div class="inputs">
+                <input class="time-amount" type="number" min="1" name="time-amount" id="" placeholder="1">
+                <select name="period" id="">
+                    <option value="days">Days</option>
+                    <option value="weeks">Weeks</option>
+                    <option value="months">Months</option>
+                    <option value="years">Years</option>
+                </select>
+            </div>
+            <div class="btns">
+                <button class="load-videos-btn">
+                    Load Videos
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="main.js"></script>
+    <script src="popup.js"></script>
+</body>
+
+</html>
