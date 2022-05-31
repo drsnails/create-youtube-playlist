@@ -56,26 +56,6 @@ button:hover {
     font-size: 2em;
 }
 
-.load-videos,
-.create-playlist {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 70%;
-}
-
-.create-playlist input {
-    margin-bottom: 10px;
-    width: 100%;
-}
-
-.create-playlist .add-to-q {
-    height: 40px;
-}
-
-.create-playlist .add-to-q img {
-    height: 100%;
-}
 
 .load-videos > .inputs {
     display: flex;
@@ -113,6 +93,35 @@ button:hover {
 }
 
 .load-videos .btns img {
+    height: 100%;
+}
+
+
+
+.load-videos,
+.create-playlist {
+    display: flex;
+    flex-direction: column;
+    /* align-items: center; */
+    width: 70%;
+}
+
+.create-playlist input {
+    margin-bottom: 10px;
+    width: 100%;
+    transition: .3s;
+    /* left: 0; */
+}
+
+.create-playlist input:hover {
+    /* width: 80%; */
+}
+
+.create-playlist .add-to-q {
+    height: 40px;
+}
+
+.create-playlist .add-to-q img {
     height: 100%;
 }
 

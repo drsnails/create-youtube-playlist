@@ -47,31 +47,40 @@ async function onAddToQueue({ target }) {
 }
 
 async function onToggleLoadVideos(ev) {
+    try {
+        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        const elTimeAmount = document.querySelector('.time-amount')
+        const elPeriod = document.querySelector('select[name="period"]')
+        const period = elPeriod.value
+        let amount = +elTimeAmount.value
+        if (!amount) amount = 1
+        const func = gIsRunning ? stop : scrollToTime
+        gIsRunning = !gIsRunning
+        onChangeStopBtnTxt(gIsRunning)
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            function: func,
+            args: [amount, period]
+        });
+    } catch (err) {
+        console.error(err)
+    }
 
-    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    const elTimeAmount = document.querySelector('.time-amount')
-    const elPeriod = document.querySelector('select[name="period"]')
-    const period = elPeriod.value
-    let amount = +elTimeAmount.value
-    if (!amount) amount = 1
-    const func = gIsRunning ? stop : scrollToTime
-    gIsRunning = !gIsRunning
-    onChangeStopBtnTxt(gIsRunning)
-    chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        function: func,
-        args: [amount, period]
-    });
 }
 
 
 async function onStop() {
-    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        function: stop,
-        args: []
-    });
+    try {
+
+        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            function: stop,
+            args: []
+        });
+    } catch (err) {
+        console.error(err)
+    }
 }
 
 
