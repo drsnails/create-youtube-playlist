@@ -3,16 +3,17 @@
 window.addEventListener('DOMContentLoaded', () => {
     onInit();
 })
-
 let gElAddToQBtn
 let gElLoadVideosBtn
 let gElStopBtn
+let gElToggleFilterBy
 let gIsRunning = false
 
 function onInit() {
     gElAddToQBtn = document.querySelector('.add-to-q')
     gElLoadVideosBtn = document.querySelector('.load-videos-btn')
     gElStopBtn = document.querySelector('.stop-btn')
+    gElToggleFilterBy = document.querySelector('.toggle-filterby-btn')
     addEventListeners()
     chrome.runtime.onMessage.addListener(({ type, isRunningScroll }) => {
         if (type === 'queue') {
@@ -69,6 +70,11 @@ async function onToggleLoadVideos(ev) {
 }
 
 
+function onToggleFilterBy() {
+    gElToggleFilterBy
+}
+
+
 async function onStop() {
     try {
 
@@ -87,11 +93,12 @@ async function onStop() {
 function addEventListeners() {
     gElAddToQBtn.addEventListener('click', onAddToQueue);
     gElLoadVideosBtn.addEventListener('click', onToggleLoadVideos);
+    gElToggleFilterBy.addEventListener('click', onToggleFilterBy);
 }
 
 function onChangeStopBtnTxt(isRunning) {
     gIsRunning = isRunning
-    const txt = isRunning ? 'Stop' : 'Load Videos'
+    const txt = isRunning ? 'Stop' : 'Load More Videos'
     gElLoadVideosBtn.innerText = txt
 
 }

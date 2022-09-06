@@ -1,9 +1,14 @@
 'use strict'
 
-var isStop = true
+let gIsStop = true
+let gFilterBy = 'key'
 
 function stop() {
-    isStop = true
+    gIsStop = true
+}
+
+function toggleFilterBy(){
+    
 }
 
 
@@ -46,7 +51,7 @@ function addToQueue(...terms) {
 
 
 function scrollToTime(amount, timePeriod, page = 0) {
-    isStop = false
+    gIsStop = false
 
     // toggle is running
     try {
@@ -68,7 +73,7 @@ function scrollToTime(amount, timePeriod, page = 0) {
         let sameLengthCount = 0
         function innerRecursive(amount, timePeriod, page) {
 
-            if (isStop) return
+            if (gIsStop) return
             timePeriod = timePeriod.toLocaleLowerCase()
             amount = +amount
             let elSpans = document.querySelectorAll("#metadata-line > span:nth-child(2)")

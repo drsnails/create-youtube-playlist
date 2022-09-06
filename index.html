@@ -11,6 +11,15 @@
 
 <body>
     <div class="main">
+        
+        <div class="create-playlist">
+            <button class="toggle-filterby-btn">Top Videos</button>
+            <input type="text" name="search-term" id="" placeholder="Search">
+            <button class="add-to-q btn">
+                <span>Create Playlist</span>
+                <img class="hide" src="./img/oval.svg" alt="">
+            </button>
+        </div>
         <div class="load-videos">
             <div class="inputs">
                 <input class="time-amount" type="number" min="1" name="time-amount" id="" placeholder="1">
@@ -22,17 +31,10 @@
                 </select>
             </div>
             <div class="btns">
-                <button class="load-videos-btn">
+                <button class="load-videos-btn btn">
                     Load More Videos
                 </button>
             </div>
-        </div>
-        <div class="create-playlist">
-            <input type="text" name="search-term" id="" placeholder="Search">
-            <button class="add-to-q">
-                <span>Create Playlist</span>
-                <img class="hide" src="./img/oval.svg" alt="">
-            </button>
         </div>
     </div>
     <script src="main.js"></script>

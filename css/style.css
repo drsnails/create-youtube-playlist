@@ -9,7 +9,7 @@ body {
     margin: 0;
 }
 
-button {
+.btn {
     padding: 8px;
     background-color: #ff0200;
     border: none;
@@ -20,6 +20,15 @@ button {
     font-size: 16px;
 }
 
+.toggle-filterby-btn {
+    width: fit-content;
+    margin-bottom: 10px;
+    background: none;
+    border: none;
+    font-size: 15px;
+    padding-left: 0;
+    color: white;
+}
 
 
 input,
@@ -38,7 +47,7 @@ input {
     box-shadow: 0px 0px 5px 3px #ff0200;
 }
 
-button:hover {
+.btn:hover {
     background-color: #fd3c3c;
 }
 
@@ -57,6 +66,7 @@ button:hover {
 }
 
 
+/* LOAD VIDEOS */
 .load-videos > .inputs {
     display: flex;
     /* justify-content: center; */
@@ -97,7 +107,7 @@ button:hover {
 }
 
 
-
+/* CREATE PLAYLIST */
 .load-videos,
 .create-playlist {
     display: flex;
