@@ -3,23 +3,28 @@
 window.addEventListener('DOMContentLoaded', () => {
     onInit();
 })
+const gTerms = ['key', 'top']
+let gCurrTermIdx = 0
 let gElAddToQBtn
 let gElLoadVideosBtn
 let gElStopBtn
-let gElToggleFilterBy
+let gTopVideosBtn
+let gElToggleFilterByBtn
 let gIsRunning = false
+// let gFilterByTerm = 'key'
 
 function onInit() {
     gElAddToQBtn = document.querySelector('.add-to-q')
     gElLoadVideosBtn = document.querySelector('.load-videos-btn')
     gElStopBtn = document.querySelector('.stop-btn')
-    gElToggleFilterBy = document.querySelector('.toggle-filterby-btn')
+    gElToggleFilterByBtn = document.querySelector('.toggle-filterby-btn')
+    gTopVideosBtn = document.querySelector('.top-videos-btn')
     addEventListeners()
     chrome.runtime.onMessage.addListener(({ type, isRunningScroll }) => {
         if (type === 'queue') {
             onToggleImgLoader()
         } else if (type === 'scroll') {
-            onChangeStopBtnTxt(isRunningScroll)
+            changeStopBtnTxt(isRunningScroll)
         }
     })
 
@@ -38,12 +43,13 @@ async function onAddToQueue({ target }) {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     const elTermInput = document.querySelector('[name="search-term"]')
     const term = elTermInput.value
-    if (!term) return shakeBtn(target)
+    let filterBy = gTerms[gCurrTermIdx]
+    if (!term && filterBy === 'key') return shakeBtn(target)
     let terms = term.split(',').map(term => term.trim())
     chrome.scripting.executeScript({
         target: { tabId: tab.id },
         function: addToQueue,
-        args: [...terms]
+        args: [filterBy, ...terms]
     });
 }
 
@@ -57,7 +63,8 @@ async function onToggleLoadVideos(ev) {
         if (!amount) amount = 1
         const func = gIsRunning ? stop : scrollToTime
         gIsRunning = !gIsRunning
-        onChangeStopBtnTxt(gIsRunning)
+        changeStopBtnTxt(gIsRunning)
+
         chrome.scripting.executeScript({
             target: { tabId: tab.id },
             function: func,
@@ -70,8 +77,23 @@ async function onToggleLoadVideos(ev) {
 }
 
 
-function onToggleFilterBy() {
-    gElToggleFilterBy
+async function onToggleFilterBy() {
+    try {
+        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        let currTerm = gTerms[gCurrTermIdx]
+        // let nextTermIdx = gTerms.findIndex(term => term === gTerms[gCurrTermIdx]) + 1
+        gCurrTermIdx = getNextTermIdx()
+        changeToggleFilterTermTxt()
+        onToggleFilterByContainer()
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            function: toggleFilterBy,
+            args: [gTerms[gCurrTermIdx], gCurrTermIdx]
+        });
+    } catch (err) {
+        console.log('err:', err)
+    }
+
 }
 
 
@@ -92,18 +114,44 @@ async function onStop() {
 
 function addEventListeners() {
     gElAddToQBtn.addEventListener('click', onAddToQueue);
+    gTopVideosBtn.addEventListener('click', onAddToQueue);
     gElLoadVideosBtn.addEventListener('click', onToggleLoadVideos);
-    gElToggleFilterBy.addEventListener('click', onToggleFilterBy);
+    gElToggleFilterByBtn.addEventListener('click', onToggleFilterBy);
 }
 
-function onChangeStopBtnTxt(isRunning) {
+function changeStopBtnTxt(isRunning) {
     gIsRunning = isRunning
     const txt = isRunning ? 'Stop' : 'Load More Videos'
     gElLoadVideosBtn.innerText = txt
 
 }
 
+function changeToggleFilterTermTxt() {
+    let nextTermIdx = getNextTermIdx()
+    let nextTerm = gTerms[nextTermIdx]
+    let txt
+    if (nextTerm === 'top') {
+        txt = 'Top Videos'
+    } else if (nextTerm === 'key') {
+        txt = 'Search By Keyword'
+    }
+    gElToggleFilterByBtn.innerText = txt
+
+}
+
+function getNextTermIdx() {
+    let nextTermIdx = gCurrTermIdx + 1
+    if (nextTermIdx === gTerms.length) nextTermIdx = 0
+    return nextTermIdx
+}
+
 function onToggleImgLoader() {
-    gElAddToQBtn.querySelector('img').classList.toggle('hide')
-    gElAddToQBtn.querySelector('span').classList.toggle('hide')
+    const elBtn = gTerms[gCurrTermIdx] === 'key' ? gElAddToQBtn : gTopVideosBtn
+    elBtn.querySelector('img').classList.toggle('hide')
+    elBtn.querySelector('span').classList.toggle('hide')
+}
+
+function onToggleFilterByContainer() {
+    gTopVideosBtn.classList.toggle('hide')
+    document.querySelector('.key-search-container').classList.toggle('hide')
 }

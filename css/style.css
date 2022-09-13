@@ -8,6 +8,9 @@ html {
 body {
     margin: 0;
 }
+button {
+    cursor: pointer;
+}
 
 .btn {
     padding: 8px;
@@ -29,7 +32,6 @@ body {
     padding-left: 0;
     color: white;
 }
-
 
 input,
 select {
@@ -64,7 +66,6 @@ input {
     padding: 50px 20px;
     font-size: 2em;
 }
-
 
 /* LOAD VIDEOS */
 .load-videos > .inputs {
@@ -102,10 +103,10 @@ input {
     /* margin-right: 5px; */
 }
 
-.load-videos .btns img {
-    height: 100%;
+.key-search-container {
+    display: flex;
+    flex-direction: column;
 }
-
 
 /* CREATE PLAYLIST */
 .load-videos,
@@ -119,7 +120,7 @@ input {
 .create-playlist input {
     margin-bottom: 10px;
     width: 100%;
-    transition: .3s;
+    transition: 0.3s;
     /* left: 0; */
 }
 
@@ -127,18 +128,17 @@ input {
     /* width: 80%; */
 }
 
-.create-playlist .add-to-q {
+:is(.create-playlist .add-to-q, .top-videos-btn) {
     height: 40px;
 }
 
-.create-playlist .add-to-q img {
+:is(.create-playlist .add-to-q, .top-videos-btn) img {
     height: 100%;
 }
 
 .hide {
     display: none;
 }
-
 
 .shake-animation {
     animation: shake 0.08s 3 alternate forwards ease-in;

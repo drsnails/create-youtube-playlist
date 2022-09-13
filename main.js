@@ -1,19 +1,20 @@
 'use strict'
 
 let gIsStop = true
-let gFilterBy = 'key'
+let _gFilterByTerm = 'key'
 
 function stop() {
     gIsStop = true
 }
 
-function toggleFilterBy(){
-    
+function toggleFilterBy(filterByTerm, currTermIdx) {
+    _gFilterByTerm = filterByTerm
 }
 
 
 
-function addToQueue(...terms) {
+
+function addToQueue(filterBy, ...terms) {
     var elPlayListContainer = document.querySelector('#player-container')
     if (elPlayListContainer?.children.length) return
     try {
@@ -27,12 +28,47 @@ function addToQueue(...terms) {
             return isInclude.test(string)
         }
 
+        const getViewsCount = (viewsStr) => {
+            const numMultMap = {
+                K: 1000,
+                M: 1000000,
+                B: 1000000000
+            }
+
+            let viewsCountStr = viewsStr.split(' ')[0]
+            let viewsCount = +viewsCountStr
+            const numMult = viewsCountStr.at(-1)
+            if (numMult in numMultMap) {
+                viewsCount = +viewsCountStr.slice(0, -1) * numMultMap[numMult]
+            }
+
+            return viewsCount
+
+        }
+
+      
+        const sortByViews = (els) => {
+            els.sort((el1, el2) => {
+                const el1ViewsTxt = el1.querySelector("#metadata-line > span:nth-child(1)").innerText
+                const el2ViewsTxt = el2.querySelector("#metadata-line > span:nth-child(1)").innerText
+                let el1ViewsCount = getViewsCount(el1ViewsTxt)
+                let el2ViewsCount = getViewsCount(el2ViewsTxt)
+                return (el1ViewsCount - el2ViewsCount) * -1
+            })
+        }
+
+
+
         let els = document.querySelectorAll("#items > ytd-grid-video-renderer")
-        els = [...els].reverse()
+        els = Array.from(els).slice(0, 200)
+        if (filterBy === 'top') sortByViews(els)
+        else els = els.reverse()
         els.forEach(el => {
             const title = el.querySelector('#details #meta #video-title').innerText
-            const isIncludes = terms.some(term => isSearchKeyInclude(title, term))
-            if (!isIncludes) return
+            if (filterBy === 'key') {
+                const isIncludes = terms.some(term => isSearchKeyInclude(title, term))
+                if (!isIncludes) return
+            }
             const mouseenterEvent = new Event('mouseenter');
             el.dispatchEvent(mouseenterEvent);
             var elAddToQueue = el.querySelector('#hover-overlays > ytd-thumbnail-overlay-toggle-button-renderer:nth-child(2) #icon')
@@ -46,6 +82,9 @@ function addToQueue(...terms) {
     }
 
 }
+
+
+
 
 
 
