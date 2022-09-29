@@ -13,7 +13,7 @@
     <div class="main">
 
         <div class="create-playlist">
-            <button class="toggle-filterby-btn">Top Videos</button>
+            <button class="toggle-filterby-btn">Go to <span>top videos</span></button>
             <section class="key-search-container">
                 <input type="text" name="search-term" id="" placeholder="Search">
                 <button class="add-to-q btn">
@@ -21,10 +21,13 @@
                     <img class="hide" src="./img/oval.svg" alt="">
                 </button>
             </section>
-            <button class="btn top-videos-btn hide">
-                <span>Top Videos</span>
-                <img class="hide" src="./img/oval.svg" alt="">
-            </button>
+            <section class="top-videos-container hide">
+                <input type="number" min="10" value="10">
+                <button class="btn top-videos-btn">
+                    <span>Top Videos</span>
+                    <img class="hide" src="./img/oval.svg" alt="">
+                </button>
+            </section>
         </div>
         <div class="load-videos">
             <div class="inputs">

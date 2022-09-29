@@ -9,6 +9,7 @@ let gElAddToQBtn
 let gElLoadVideosBtn
 let gElStopBtn
 let gTopVideosBtn
+let gTopVideosContainer
 let gElToggleFilterByBtn
 let gIsRunning = false
 // let gFilterByTerm = 'key'
@@ -19,6 +20,7 @@ function onInit() {
     gElStopBtn = document.querySelector('.stop-btn')
     gElToggleFilterByBtn = document.querySelector('.toggle-filterby-btn')
     gTopVideosBtn = document.querySelector('.top-videos-btn')
+    gTopVideosContainer = document.querySelector('.top-videos-container')
     addEventListeners()
     chrome.runtime.onMessage.addListener(({ type, isRunningScroll }) => {
         if (type === 'queue') {
@@ -42,6 +44,8 @@ function shakeBtn() {
 async function onAddToQueue({ target }) {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     const elTermInput = document.querySelector('[name="search-term"]')
+    let topVideosCount = +document.querySelector('.top-videos-container input').value
+
     const term = elTermInput.value
     let filterBy = gTerms[gCurrTermIdx]
     if (!term && filterBy === 'key') return shakeBtn(target)
@@ -49,7 +53,7 @@ async function onAddToQueue({ target }) {
     chrome.scripting.executeScript({
         target: { tabId: tab.id },
         function: addToQueue,
-        args: [filterBy, ...terms]
+        args: [filterBy,topVideosCount, ...terms]
     });
 }
 
@@ -131,11 +135,11 @@ function changeToggleFilterTermTxt() {
     let nextTerm = gTerms[nextTermIdx]
     let txt
     if (nextTerm === 'top') {
-        txt = 'Top Videos'
+        txt = 'top videos'
     } else if (nextTerm === 'key') {
-        txt = 'Search By Keyword'
+        txt = 'search by keyword'
     }
-    gElToggleFilterByBtn.innerText = txt
+    gElToggleFilterByBtn.querySelector('span').innerText = txt
 
 }
 
@@ -152,6 +156,6 @@ function onToggleImgLoader() {
 }
 
 function onToggleFilterByContainer() {
-    gTopVideosBtn.classList.toggle('hide')
+    gTopVideosContainer.classList.toggle('hide')
     document.querySelector('.key-search-container').classList.toggle('hide')
 }

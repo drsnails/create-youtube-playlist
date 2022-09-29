@@ -14,7 +14,7 @@ function toggleFilterBy(filterByTerm, currTermIdx) {
 
 
 
-function addToQueue(filterBy, ...terms) {
+function addToQueue(filterBy, topVideosCount, ...terms) {
     var elPlayListContainer = document.querySelector('#player-container')
     if (elPlayListContainer?.children.length) return
     try {
@@ -46,14 +46,14 @@ function addToQueue(filterBy, ...terms) {
 
         }
 
-      
+
         const sortByViews = (els) => {
             els.sort((el1, el2) => {
                 const el1ViewsTxt = el1.querySelector("#metadata-line > span:nth-child(1)").innerText
                 const el2ViewsTxt = el2.querySelector("#metadata-line > span:nth-child(1)").innerText
                 let el1ViewsCount = getViewsCount(el1ViewsTxt)
                 let el2ViewsCount = getViewsCount(el2ViewsTxt)
-                return (el1ViewsCount - el2ViewsCount) * -1
+                return (el2ViewsCount - el1ViewsCount)
             })
         }
 
@@ -61,8 +61,14 @@ function addToQueue(filterBy, ...terms) {
 
         let els = document.querySelectorAll("#items > ytd-grid-video-renderer")
         els = Array.from(els).slice(0, 200)
-        if (filterBy === 'top') sortByViews(els)
-        else els = els.reverse()
+        if (filterBy === 'top') {
+            if (typeof topVideosCount !== 'number' || !topVideosCount) topVideosCount = 10
+            sortByViews(els)
+            els = els.slice(0, topVideosCount)
+        } else {
+            els = els.reverse()
+        }
+
         els.forEach(el => {
             const title = el.querySelector('#details #meta #video-title').innerText
             if (filterBy === 'key') {
