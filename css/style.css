@@ -26,6 +26,7 @@ button {
 input,
 select {
     border-radius: 3px;
+    height: 35px;
 }
 
 .toggle-filterby-btn {
@@ -53,6 +54,41 @@ select {
     transition: 0.40s right cubic-bezier(0.19, 0.91, 0.18, 1.02);
 }
 
+.sort-by-container {
+    display: flex;
+    /* align-items: center; */
+    height: 35px;
+    margin-bottom: 5px;
+
+}
+.sort-by-container span {
+    font-size: 16px;
+    display: inline-block;
+    /* height: 35px; */
+    line-height: 35px;
+    margin-right: 10px;
+
+}
+
+select.sort-by {
+    width: min-content;
+    margin-bottom: 5px;
+    background: none;
+    color: white;
+    border: none;
+}
+
+select.sort-by:after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 2px;
+    background-color: white;
+    inset: 0;
+
+    top: 100%;
+}
+
 .toggle-filterby-btn:hover:after {
     right: -3%;
 }
@@ -69,7 +105,7 @@ input {
     border: none;
 }
 
-:is(input, select):focus {
+:is(input, select):not(.sort-by):focus {
     box-shadow: 0px 0px 5px 3px #ff0200;
 }
 
@@ -97,6 +133,19 @@ input {
     /* justify-content: center; */
     text-align: center;
     gap: 5px;
+}
+
+.main-inputs{
+    display: flex;
+    gap: 5px;
+}
+
+.main-inputs input[name=search-term] {
+    flex-grow: 1;
+}
+
+.main-inputs select.num-of-vids {
+    max-width: 30%;
 }
 
 .load-videos select {

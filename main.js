@@ -14,7 +14,7 @@ function toggleFilterBy(filterByTerm, currTermIdx) {
 
 
 
-function addToQueue(filterBy, topVideosCount, ...terms) {
+function addToQueue(sortBy, videosCount, ...terms) {
     var elPlayListContainer = document.querySelector('#player-container')
     if (elPlayListContainer?.children.length) return
     try {
@@ -61,20 +61,19 @@ function addToQueue(filterBy, topVideosCount, ...terms) {
 
         let els = document.querySelectorAll("#items > ytd-grid-video-renderer")
         els = Array.from(els).slice(0, 200)
-        if (filterBy === 'top') {
-            if (typeof topVideosCount !== 'number' || !topVideosCount) topVideosCount = 10
+        if (!videosCount) videosCount = 200
+        console.log('videosCount:', videosCount)
+        if (sortBy === 'top') {
             sortByViews(els)
-            els = els.slice(0, topVideosCount)
-        } else {
+        } else if (sortBy === 'date') {
             els = els.reverse()
         }
-
+        let foundVideosCount = 0
         els.forEach(el => {
             const title = el.querySelector('#details #meta #video-title').innerText
-            if (filterBy === 'key') {
-                const isIncludes = terms.some(term => isSearchKeyInclude(title, term))
-                if (!isIncludes) return
-            }
+            const isIncludes = terms.some(term => isSearchKeyInclude(title, term))
+            if (!isIncludes || foundVideosCount === videosCount) return
+            foundVideosCount++
             const mouseenterEvent = new Event('mouseenter');
             el.dispatchEvent(mouseenterEvent);
             var elAddToQueue = el.querySelector('#hover-overlays > ytd-thumbnail-overlay-toggle-button-renderer:nth-child(2) #icon')

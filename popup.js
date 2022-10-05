@@ -10,15 +10,16 @@ let gElLoadVideosBtn
 let gElStopBtn
 let gTopVideosBtn
 let gTopVideosContainer
-let gElToggleFilterByBtn
+// let gElToggleFilterByBtn
 let gIsRunning = false
+// let gIsAll = true
 // let gFilterByTerm = 'key'
 
 function onInit() {
     gElAddToQBtn = document.querySelector('.add-to-q')
     gElLoadVideosBtn = document.querySelector('.load-videos-btn')
     gElStopBtn = document.querySelector('.stop-btn')
-    gElToggleFilterByBtn = document.querySelector('.toggle-filterby-btn')
+    // gElToggleFilterByBtn = document.querySelector('.toggle-filterby-btn')
     gTopVideosBtn = document.querySelector('.top-videos-btn')
     gTopVideosContainer = document.querySelector('.top-videos-container')
     addEventListeners()
@@ -41,10 +42,38 @@ function shakeBtn() {
 }
 
 
+/*TEST START*/
+
 async function onAddToQueue({ target }) {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     const elTermInput = document.querySelector('[name="search-term"]')
-    let topVideosCount = +document.querySelector('.top-videos-container input').value
+    // let topVideosCount = +document.querySelector('.top-videos-container input').value
+    let topVideosCount = +document.querySelector('select.num-of-vids').value
+    let sortBy = document.querySelector('select.sort-by').value
+    console.log('sortBy:', sortBy)
+
+    const term = elTermInput.value
+    let terms = term.split(',').map(term => term.trim())
+    chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        function: addToQueue,
+        args: [sortBy,topVideosCount, ...terms]
+    });
+}
+
+/*TEST END*/
+
+
+
+/*ORIGINAL START*/
+
+/*
+async function onAddToQueue({ target }) {
+    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const elTermInput = document.querySelector('[name="search-term"]')
+    // let topVideosCount = +document.querySelector('.top-videos-container input').value
+    let topVideosCount = +document.querySelector('select.num-of-vids').value
+    console.log('onAddToQueue -> topVideosCount', topVideosCount)
 
     const term = elTermInput.value
     let filterBy = gTerms[gCurrTermIdx]
@@ -56,6 +85,9 @@ async function onAddToQueue({ target }) {
         args: [filterBy,topVideosCount, ...terms]
     });
 }
+*/
+
+/*ORIGINAL END*/
 
 async function onToggleLoadVideos(ev) {
     try {
@@ -84,7 +116,6 @@ async function onToggleLoadVideos(ev) {
 async function onToggleFilterBy() {
     try {
         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        let currTerm = gTerms[gCurrTermIdx]
         // let nextTermIdx = gTerms.findIndex(term => term === gTerms[gCurrTermIdx]) + 1
         gCurrTermIdx = getNextTermIdx()
         changeToggleFilterTermTxt()
@@ -120,7 +151,7 @@ function addEventListeners() {
     gElAddToQBtn.addEventListener('click', onAddToQueue);
     gTopVideosBtn.addEventListener('click', onAddToQueue);
     gElLoadVideosBtn.addEventListener('click', onToggleLoadVideos);
-    gElToggleFilterByBtn.addEventListener('click', onToggleFilterBy);
+    // gElToggleFilterByBtn.addEventListener('click', onToggleFilterBy);
 }
 
 function changeStopBtnTxt(isRunning) {
