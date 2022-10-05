@@ -43,25 +43,19 @@ select {
 .toggle-filterby-btn:after {
     content: "";
     display: block;
-    
-}
-
-.toggle-filterby-btn:hover:after {
-    content: "";
-    display: block;
     height: 1.5px;
     border-radius: 3px;
     background-color: white;
     position: absolute;
     top: 100%;
-    left: 0%;
+    left: 0;
     right: 100%;
-    animation: fill-underline .5s forwards;
-    animation-timing-function: cubic-bezier(0, 0.95, 0.18, 1.02);
+    transition: 0.40s right cubic-bezier(0.19, 0.91, 0.18, 1.02);
 }
 
-
-
+.toggle-filterby-btn:hover:after {
+    right: -3%;
+}
 
 input,
 select {
@@ -205,19 +199,16 @@ input {
 }
 
 @keyframes fill-underline {
-
     to {
         right: -3%;
     }
 }
 
 @keyframes empty-underline {
-
     to {
         right: -110%;
     }
 }
-
 
 [data-tooltip] {
     white-space: nowrap;
