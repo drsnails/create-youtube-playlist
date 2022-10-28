@@ -2,6 +2,10 @@
     box-sizing: border-box;
 }
 
+:root {
+    --gapSize: 7px;
+}
+
 html {
     font-size: 30px;
 }
@@ -41,45 +45,61 @@ select {
     position: relative;
 }
 
-.toggle-filterby-btn:after {
+
+.sort-by-container {
+    display: flex;
+    /* align-items: center; */
+    width: fit-content;
+    height: 35px;
+    margin-bottom: 5px;
+    font-size: 16px;
+    position: relative;
+    
+
+}
+
+.sort-by-container:after {
     content: "";
     display: block;
     height: 1.5px;
     border-radius: 3px;
     background-color: white;
     position: absolute;
-    top: 100%;
+    top: 82%;
     left: 0;
     right: 100%;
-    transition: 0.40s right cubic-bezier(0.19, 0.91, 0.18, 1.02);
+    transition: 0.6s right cubic-bezier(0.19, 0.91, 0.18, 1.02);
 }
 
-.sort-by-container {
-    display: flex;
-    /* align-items: center; */
-    height: 35px;
-    margin-bottom: 5px;
 
+
+.sort-by-container:hover:after {
+    right: -5%;
 }
-.sort-by-container span {
-    font-size: 16px;
+.sort-by-container label {
+    font-size: 1em;
     display: inline-block;
     /* height: 35px; */
     line-height: 35px;
-    margin-right: 10px;
 
+    margin-right: 5px;
 }
 
 select.sort-by {
+    font-size: 1em;
+
     width: min-content;
     margin-bottom: 5px;
     background: none;
     color: white;
     border: none;
+    cursor: pointer;
+
+    align-self: flex-start;
 }
 
 select.sort-by:after {
-    content: '';
+    content: "";
     display: block;
     width: 100%;
     height: 2px;
@@ -89,9 +109,6 @@ select.sort-by:after {
     top: 100%;
 }
 
-.toggle-filterby-btn:hover:after {
-    right: -3%;
-}
 
 input,
 select {
@@ -127,20 +144,22 @@ input {
     font-size: 2em;
 }
 
+.main-inputs {
+    display: flex;
+    gap: var(--gapSize);
+    margin-bottom: var(--gapSize);
+}
+
 /* LOAD VIDEOS */
 .load-videos > .inputs {
     display: flex;
     /* justify-content: center; */
     text-align: center;
-    gap: 5px;
+    gap: var(--gapSize);
+    margin-bottom: var(--gapSize);
 }
 
-.main-inputs{
-    display: flex;
-    gap: 5px;
-}
-
-.main-inputs input[name=search-term] {
+.main-inputs input[name="search-term"] {
     flex-grow: 1;
 }
 
@@ -158,7 +177,6 @@ input {
 }
 
 .load-videos .btns {
-    margin-top: 10px;
     display: flex;
     /* flex-direction: column; */
     align-items: center;
@@ -191,7 +209,6 @@ input {
 }
 
 .create-playlist input {
-    margin-bottom: 10px;
     width: 100%;
     transition: 0.3s;
     /* left: 0; */

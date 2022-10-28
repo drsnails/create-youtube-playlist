@@ -16,6 +16,8 @@ function toggleFilterBy(filterByTerm, currTermIdx) {
 
 function addToQueue(sortBy, videosCount, ...terms) {
     var elPlayListContainer = document.querySelector('#player-container')
+    
+    
     if (elPlayListContainer?.children.length) return
     try {
 
@@ -25,10 +27,12 @@ function addToQueue(sortBy, videosCount, ...terms) {
             // * comment next line for normal filter
             // searchKey = '.*' + searchKey.split('').join('.*') + '.*' 
             const isInclude = new RegExp(searchKey, 'i')
+
             return isInclude.test(string)
         }
 
         const getViewsCount = (viewsStr) => {
+            console.log('viewsStr:', viewsStr)
             const numMultMap = {
                 K: 1000,
                 M: 1000000,
@@ -41,7 +45,6 @@ function addToQueue(sortBy, videosCount, ...terms) {
             if (numMult in numMultMap) {
                 viewsCount = +viewsCountStr.slice(0, -1) * numMultMap[numMult]
             }
-
             return viewsCount
 
         }
@@ -58,21 +61,20 @@ function addToQueue(sortBy, videosCount, ...terms) {
         }
 
 
-
         let els = document.querySelectorAll("#items > ytd-grid-video-renderer")
-        els = Array.from(els).slice(0, 200)
-        if (!videosCount) videosCount = 200
-        console.log('videosCount:', videosCount)
+        els = Array.from(els)
         if (sortBy === 'top') {
             sortByViews(els)
         } else if (sortBy === 'date') {
             els = els.reverse()
         }
+        if (!videosCount) videosCount = 200
         let foundVideosCount = 0
-        els.forEach(el => {
+
+        for (const el of els) {
             const title = el.querySelector('#details #meta #video-title').innerText
             const isIncludes = terms.some(term => isSearchKeyInclude(title, term))
-            if (!isIncludes || foundVideosCount === videosCount) return
+            if (!isIncludes) continue
             foundVideosCount++
             const mouseenterEvent = new Event('mouseenter');
             el.dispatchEvent(mouseenterEvent);
@@ -80,7 +82,10 @@ function addToQueue(sortBy, videosCount, ...terms) {
             elAddToQueue?.click()
             const mouseleaveEvent = new Event('mouseleave');
             el.dispatchEvent(mouseleaveEvent);
-        })
+            if (foundVideosCount === videosCount) break
+        }
+
+       
         chrome.runtime.sendMessage({ type: 'queue', isRunningQueue: false })
     } catch (err) {
         console.error(err)

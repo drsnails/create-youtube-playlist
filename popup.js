@@ -42,52 +42,26 @@ function shakeBtn() {
 }
 
 
-/*TEST START*/
 
 async function onAddToQueue({ target }) {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     const elTermInput = document.querySelector('[name="search-term"]')
     // let topVideosCount = +document.querySelector('.top-videos-container input').value
-    let topVideosCount = +document.querySelector('select.num-of-vids').value
+    let videosCount = +document.querySelector('select.num-of-vids').value
     let sortBy = document.querySelector('select.sort-by').value
-    console.log('sortBy:', sortBy)
 
     const term = elTermInput.value
     let terms = term.split(',').map(term => term.trim())
     chrome.scripting.executeScript({
         target: { tabId: tab.id },
         function: addToQueue,
-        args: [sortBy,topVideosCount, ...terms]
+        args: [sortBy,videosCount, ...terms]
     });
 }
 
-/*TEST END*/
 
 
 
-/*ORIGINAL START*/
-
-/*
-async function onAddToQueue({ target }) {
-    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    const elTermInput = document.querySelector('[name="search-term"]')
-    // let topVideosCount = +document.querySelector('.top-videos-container input').value
-    let topVideosCount = +document.querySelector('select.num-of-vids').value
-    console.log('onAddToQueue -> topVideosCount', topVideosCount)
-
-    const term = elTermInput.value
-    let filterBy = gTerms[gCurrTermIdx]
-    if (!term && filterBy === 'key') return shakeBtn(target)
-    let terms = term.split(',').map(term => term.trim())
-    chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        function: addToQueue,
-        args: [filterBy,topVideosCount, ...terms]
-    });
-}
-*/
-
-/*ORIGINAL END*/
 
 async function onToggleLoadVideos(ev) {
     try {
@@ -124,7 +98,7 @@ async function onToggleFilterBy() {
             target: { tabId: tab.id },
             function: toggleFilterBy,
             args: [gTerms[gCurrTermIdx], gCurrTermIdx]
-        });
+        })
     } catch (err) {
         console.log('err:', err)
     }
