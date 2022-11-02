@@ -4,6 +4,7 @@
 
 :root {
     --gapSize: 7px;
+    --borderRadius: 3px;
 }
 
 html {
@@ -29,8 +30,57 @@ button {
 
 input,
 select {
-    border-radius: 3px;
+    border-radius: var(--borderRadius);
     height: 35px;
+}
+
+/* CREATE PLAYLIST */
+.load-videos,
+.create-playlist {
+    display: flex;
+    flex-direction: column;
+    /* align-items: center; */
+    width: 75%;
+}
+
+.create-playlist input {
+    width: 100%;
+    transition: 0.3s;
+    /* left: 0; */
+}
+
+.create-playlist input:hover {
+    /* width: 80%; */
+}
+
+:is(.create-playlist .add-to-q, .top-videos-btn) {
+    height: 40px;
+}
+
+:is(.create-playlist .add-to-q, .top-videos-btn) img {
+    height: 100%;
+}
+
+.top-videos-container {
+    display: flex;
+    gap: 5px;
+}
+
+.top-videos-container input {
+    width: 40%;
+    height: 100%;
+}
+
+.top-videos-container button {
+    flex-grow: 1;
+}
+
+.hide {
+    display: none;
+}
+
+.shake-animation {
+    animation: shake 0.08s 3 alternate forwards ease-in;
 }
 
 .toggle-filterby-btn {
@@ -45,17 +95,66 @@ select {
     position: relative;
 }
 
+.filter-container {
+    display: flex;
+    font-size: 16px;
+    margin-bottom: 5px;
+    align-items: center;
+}
+
+.ascending-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    flex-grow: 1;
+
+}
+
+.ascending-label {
+    /* font-size: small; */
+    border: 1.5px solid red;
+    cursor: pointer;
+    padding: 7px;
+    height: 27px;
+    width: 27px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--borderRadius);
+    transition: background-color 0.3s;
+}
+.ascending-label span {
+    transition: rotate 0.3s;
+
+}
+
+input:checked + .ascending-label {
+    background-color: red;
+}
+
+input:checked + .ascending-label span {
+    rotate: 180deg;
+}
+
+.ascending-container input {
+    /* width: 20px;
+    height: 20px;
+    margin: 0;
+    padding: 6px;
+    font-size: 16px; */
+    /* display: none; */
+    height: 0;
+    width: 0;
+}
 
 .sort-by-container {
     display: flex;
     /* align-items: center; */
     width: fit-content;
+    /* flex-grow: 1; */
     height: 35px;
-    margin-bottom: 5px;
-    font-size: 16px;
+    /* margin-bottom: 5px; */
     position: relative;
-    
-
 }
 
 .sort-by-container:after {
@@ -65,31 +164,28 @@ select {
     border-radius: 3px;
     background-color: white;
     position: absolute;
-    top: 82%;
+    top: 86%;
     left: 0;
     right: 100%;
     transition: 0.6s right cubic-bezier(0.19, 0.91, 0.18, 1.02);
 }
 
-
-
 .sort-by-container:hover:after {
-    right: -5%;
+    right: 0.5%;
 }
 .sort-by-container label {
-    font-size: 1em;
-    display: inline-block;
     /* height: 35px; */
     line-height: 35px;
-
-    margin-right: 5px;
+    /* font-size: 1em; */
+    display: inline-block;
+    margin-right: 7px;
 }
 
 select.sort-by {
     font-size: 1em;
 
     width: min-content;
-    margin-bottom: 5px;
+    /* margin-bottom: 5px; */
     background: none;
     color: white;
     border: none;
@@ -109,7 +205,6 @@ select.sort-by:after {
     top: 100%;
 }
 
-
 input,
 select {
     outline: none;
@@ -122,7 +217,7 @@ input {
     border: none;
 }
 
-:is(input, select):not(.sort-by):focus {
+:is(input, select):not(.sort-by, [type="checkbox"]):focus {
     box-shadow: 0px 0px 5px 3px #ff0200;
 }
 
@@ -197,55 +292,6 @@ input {
 .key-search-container {
     display: flex;
     flex-direction: column;
-}
-
-/* CREATE PLAYLIST */
-.load-videos,
-.create-playlist {
-    display: flex;
-    flex-direction: column;
-    /* align-items: center; */
-    width: 70%;
-}
-
-.create-playlist input {
-    width: 100%;
-    transition: 0.3s;
-    /* left: 0; */
-}
-
-.create-playlist input:hover {
-    /* width: 80%; */
-}
-
-:is(.create-playlist .add-to-q, .top-videos-btn) {
-    height: 40px;
-}
-
-:is(.create-playlist .add-to-q, .top-videos-btn) img {
-    height: 100%;
-}
-
-.top-videos-container {
-    display: flex;
-    gap: 5px;
-}
-
-.top-videos-container input {
-    width: 40%;
-    height: 100%;
-}
-
-.top-videos-container button {
-    flex-grow: 1;
-}
-
-.hide {
-    display: none;
-}
-
-.shake-animation {
-    animation: shake 0.08s 3 alternate forwards ease-in;
 }
 
 @keyframes shake {

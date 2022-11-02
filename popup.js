@@ -8,10 +8,12 @@ let gCurrTermIdx = 0
 let gElAddToQBtn
 let gElLoadVideosBtn
 let gElStopBtn
+let gElAscendingInput
 let gTopVideosBtn
 let gTopVideosContainer
 // let gElToggleFilterByBtn
 let gIsRunning = false
+let gIsAscending = false
 // let gIsAll = true
 // let gFilterByTerm = 'key'
 
@@ -19,6 +21,7 @@ function onInit() {
     gElAddToQBtn = document.querySelector('.add-to-q')
     gElLoadVideosBtn = document.querySelector('.load-videos-btn')
     gElStopBtn = document.querySelector('.stop-btn')
+    gElAscendingInput = document.querySelector('.ascending-input')
     // gElToggleFilterByBtn = document.querySelector('.toggle-filterby-btn')
     gTopVideosBtn = document.querySelector('.top-videos-btn')
     gTopVideosContainer = document.querySelector('.top-videos-container')
@@ -55,11 +58,14 @@ async function onAddToQueue({ target }) {
     chrome.scripting.executeScript({
         target: { tabId: tab.id },
         function: addToQueue,
-        args: [sortBy,videosCount, ...terms]
+        args: [sortBy, videosCount,gIsAscending, ...terms]
     });
 }
 
 
+function onToggleAscending() {
+    gIsAscending = this.checked
+}
 
 
 
@@ -125,6 +131,7 @@ function addEventListeners() {
     gElAddToQBtn.addEventListener('click', onAddToQueue);
     gTopVideosBtn.addEventListener('click', onAddToQueue);
     gElLoadVideosBtn.addEventListener('click', onToggleLoadVideos);
+    gElAscendingInput.addEventListener('input', onToggleAscending);
     // gElToggleFilterByBtn.addEventListener('click', onToggleFilterBy);
 }
 

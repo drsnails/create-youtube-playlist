@@ -14,10 +14,10 @@ function toggleFilterBy(filterByTerm, currTermIdx) {
 
 
 
-function addToQueue(sortBy, videosCount, ...terms) {
+function addToQueue(sortBy, videosCount, isAscending, ...terms) {
     var elPlayListContainer = document.querySelector('#player-container')
-    
-    
+
+
     if (elPlayListContainer?.children.length) return
     try {
 
@@ -49,43 +49,45 @@ function addToQueue(sortBy, videosCount, ...terms) {
 
         }
 
-
+        const sortDirection = isAscending ? -1 : 1
         const sortByViews = (els) => {
             els.sort((el1, el2) => {
-                const el1ViewsTxt = el1.querySelector("#metadata-line > span:nth-child(1)").innerText
-                const el2ViewsTxt = el2.querySelector("#metadata-line > span:nth-child(1)").innerText
+                const el1ViewsTxt = el1.querySelector("#metadata-line > span:nth-child(2)").innerText
+                const el2ViewsTxt = el2.querySelector("#metadata-line > span:nth-child(2)").innerText
                 let el1ViewsCount = getViewsCount(el1ViewsTxt)
                 let el2ViewsCount = getViewsCount(el2ViewsTxt)
-                return (el2ViewsCount - el1ViewsCount)
+                return (el2ViewsCount - el1ViewsCount) * sortDirection
             })
         }
 
 
-        let els = document.querySelectorAll("#items > ytd-grid-video-renderer")
+        // let els = document.querySelectorAll("#items > ytd-grid-video-renderer")
+        // let els = document.querySelectorAll("#contents > ytd-rich-item-renderer")
+        let els = document.querySelectorAll("#content > ytd-rich-grid-media")
         els = Array.from(els)
         if (sortBy === 'top') {
             sortByViews(els)
         } else if (sortBy === 'date') {
-            els = els.reverse()
+            if (isAscending) els = els.reverse()
         }
         if (!videosCount) videosCount = 200
         let foundVideosCount = 0
 
         for (const el of els) {
-            const title = el.querySelector('#details #meta #video-title').innerText
+            const title = el.querySelector('#video-title').innerText
             const isIncludes = terms.some(term => isSearchKeyInclude(title, term))
             if (!isIncludes) continue
             foundVideosCount++
             const mouseenterEvent = new Event('mouseenter');
             el.dispatchEvent(mouseenterEvent);
-            var elAddToQueue = el.querySelector('#hover-overlays > ytd-thumbnail-overlay-toggle-button-renderer:nth-child(2) #icon')
+            var elAddToQueue = el.querySelector('ytd-thumbnail-overlay-toggle-button-renderer:nth-child(2) #icon.ytd-thumbnail-overlay-toggle-button-renderer')
             elAddToQueue?.click()
             const mouseleaveEvent = new Event('mouseleave');
             el.dispatchEvent(mouseleaveEvent);
             if (foundVideosCount === videosCount) break
         }
 
-       
+
         chrome.runtime.sendMessage({ type: 'queue', isRunningQueue: false })
     } catch (err) {
         console.error(err)
@@ -105,7 +107,10 @@ function scrollToTime(amount, timePeriod, page = 0) {
     // toggle is running
     try {
 
-        const onToggleIsRunning = (isRunningScroll) => chrome.runtime.sendMessage({ isRunningScroll, type: 'scroll' })
+        const onToggleIsRunning = (isRunningScroll) => {
+            gIsStop = isRunningScroll
+            chrome.runtime.sendMessage({ isRunningScroll, type: 'scroll' })
+        }
 
         const timesValMap = {
             day: 0,
@@ -121,11 +126,10 @@ function scrollToTime(amount, timePeriod, page = 0) {
         let lastLength = 0
         let sameLengthCount = 0
         function innerRecursive(amount, timePeriod, page) {
-
             if (gIsStop) return
             timePeriod = timePeriod.toLocaleLowerCase()
             amount = +amount
-            let elSpans = document.querySelectorAll("#metadata-line > span:nth-child(2)")
+            let elSpans = document.querySelectorAll("#metadata-line > span:nth-child(3)")
             elSpans = [...elSpans]
             if (elSpans.length === lastLength) {
                 sameLengthCount++

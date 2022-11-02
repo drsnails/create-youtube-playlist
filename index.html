@@ -13,18 +13,29 @@
     <div class="main">
 
         <div class="create-playlist">
-            <section class="sort-by-container">
-                <label for="sortBy">Sort By: </label>
-                <select name="sortBy" id="sortBy" class="sort-by" >
-                    <option value="date">Date</option>
-                    <option value="top">Top</option>
-                </select>
+            <section class="filter-container">
+                <section class="sort-by-container">
+                    <label for="sortBy">Sort By: </label>
+                    <select name="sortBy" id="sortBy" class="sort-by">
+                        <option value="date">Date</option>
+                        <option value="top">Top</option>
+                    </select>
+                </section>
+
+                <section class="ascending-container">
+                    <input class="ascending-input" type="checkbox" name="ascending" id="ascending">
+                    <label class="ascending-label" for="ascending"><span>⬇</span></label>
+                </section>
             </section>
+            <!-- <section>
+                <label for="ascending">Ascending</label>
+                <input type="checkbox" name="ascending" id="ascending">
+            </section> -->
             <section class="key-search-container">
                 <section class="main-inputs">
 
                     <!-- <input type="number" min="10" name="num-of-vids" value="10"> -->
-                    <select class="num-of-vids" >
+                    <select class="num-of-vids">
                         <option value="">All</option>
                         <option value="10">10</option>
                         <option value="20">20</option>
@@ -33,7 +44,7 @@
                         <option value="150">150</option>
                     </select>
 
-                    <input type="text" name="search-term"  placeholder="Search">
+                    <input type="text" name="search-term" placeholder="Search">
                 </section>
                 <button class="add-to-q btn">
                     <span>Create Playlist</span>
