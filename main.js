@@ -70,7 +70,7 @@ function addToQueue(sortBy, videosCount, isAscending, ...terms) {
         if (sortBy === 'top') {
             sortByViews(tempEls)
         }
-        
+
         if (!videosCount) videosCount = 200
         let foundVideosCount = 0
         let els = []
@@ -92,7 +92,7 @@ function addToQueue(sortBy, videosCount, isAscending, ...terms) {
             elAddToQueue?.click()
             const mouseleaveEvent = new Event('mouseleave');
             el.dispatchEvent(mouseleaveEvent);
-            
+
         }
 
 
@@ -121,6 +121,15 @@ function scrollToTime(amount, timePeriod, page = 0) {
         const onToggleIsRunning = (isRunningScroll) => {
             gIsStop = isRunningScroll
             chrome.runtime.sendMessage({ isRunningScroll, type: 'scroll' })
+        }
+
+        const checkIsSpanOverTheTime = (elSpan, timesValMap, amount) => {
+            let parts = elSpan?.innerText?.split(' ')
+            let spanAmount = parts.at(-3)
+            let spanTimePeriod = parts.at(-2)
+            spanAmount = +spanAmount
+            if (timesValMap[spanTimePeriod] > timesValMap[timePeriod]) return true
+            if (timesValMap[spanTimePeriod] === timesValMap[timePeriod] && spanAmount >= amount) return true
         }
 
         const timesValMap = {
@@ -155,15 +164,11 @@ function scrollToTime(amount, timePeriod, page = 0) {
             } else if (amount > 1) {
                 if (!timePeriod.endsWith('s')) timePeriod += 's'
             } else return onToggleIsRunning(false)
-            var spans = [elSpans.at(-20), elSpans.at(-1)]
-            for (const elSpan of spans) {
+            
+            var elSpansToCheck = [elSpans.at(-30), elSpans.at(-20), elSpans.at(-10), elSpans.at(-1)]
+            for (const elSpan of elSpansToCheck) {
                 if (!elSpan) continue
-                let parts = elSpan?.innerText?.split(' ')
-                let spanAmount = parts.at(-3)
-                let spanTimePeriod = parts.at(-2)
-                spanAmount = +spanAmount
-                if (timesValMap[spanTimePeriod] > timesValMap[timePeriod]) return onToggleIsRunning(false)
-                if (timesValMap[spanTimePeriod] === timesValMap[timePeriod] && spanAmount >= amount) return onToggleIsRunning(false)
+                if (checkIsSpanOverTheTime(elSpan, timesValMap, amount)) return onToggleIsRunning(false)
             }
 
 
