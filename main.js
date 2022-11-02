@@ -95,9 +95,12 @@ function addToQueue(sortBy, videosCount, isAscending, ...terms) {
         }
 
 
-        chrome.runtime.sendMessage({ type: 'queue', isRunningQueue: false })
+        // chrome.runtime.sendMessage({ type: 'queue', isRunningQueue: false })
     } catch (err) {
-        console.error(err)
+        console.log('err:', err)
+        alert('Something went wrong while creating the queue')
+    } finally {
+        chrome.runtime.sendMessage({ type: 'queue', isRunningQueue: false })
     }
 
 }
