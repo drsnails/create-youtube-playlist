@@ -92,6 +92,7 @@ function addToQueue(sortBy, videosCount, isAscending, ...terms) {
             elAddToQueue?.click()
             const mouseleaveEvent = new Event('mouseleave');
             el.dispatchEvent(mouseleaveEvent);
+            
         }
 
 
