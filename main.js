@@ -49,8 +49,10 @@ function addToQueue(sortBy, videosCount, isAscending, ...terms) {
 
         }
 
-        const sortDirection = isAscending ? -1 : 1
+        // const sortDirection = isAscending ? -1 : 1
+        const sortDirection = 1
         const sortByViews = (els) => {
+
             els.sort((el1, el2) => {
                 const el1ViewsTxt = el1.querySelector("#metadata-line > span:nth-child(2)").innerText
                 const el2ViewsTxt = el2.querySelector("#metadata-line > span:nth-child(2)").innerText
@@ -63,28 +65,33 @@ function addToQueue(sortBy, videosCount, isAscending, ...terms) {
 
         // let els = document.querySelectorAll("#items > ytd-grid-video-renderer")
         // let els = document.querySelectorAll("#contents > ytd-rich-item-renderer")
-        let els = document.querySelectorAll("#content > ytd-rich-grid-media")
-        els = Array.from(els)
+        let tempEls = document.querySelectorAll("#content > ytd-rich-grid-media")
+        tempEls = Array.from(tempEls)
         if (sortBy === 'top') {
-            sortByViews(els)
-        } else if (sortBy === 'date') {
-            if (isAscending) els = els.reverse()
+            sortByViews(tempEls)
         }
+        
         if (!videosCount) videosCount = 200
         let foundVideosCount = 0
-
-        for (const el of els) {
+        let els = []
+        for (const el of tempEls) {
             const title = el.querySelector('#video-title').innerText
             const isIncludes = terms.some(term => isSearchKeyInclude(title, term))
-            if (!isIncludes) continue
-            foundVideosCount++
+            if (isIncludes) {
+                foundVideosCount++
+                els.push(el)
+            }
+            if (foundVideosCount === videosCount) break
+        }
+
+        if (isAscending) els = els.reverse()
+        for (const el of els) {
             const mouseenterEvent = new Event('mouseenter');
             el.dispatchEvent(mouseenterEvent);
             var elAddToQueue = el.querySelector('ytd-thumbnail-overlay-toggle-button-renderer:nth-child(2) #icon.ytd-thumbnail-overlay-toggle-button-renderer')
             elAddToQueue?.click()
             const mouseleaveEvent = new Event('mouseleave');
             el.dispatchEvent(mouseleaveEvent);
-            if (foundVideosCount === videosCount) break
         }
 
 

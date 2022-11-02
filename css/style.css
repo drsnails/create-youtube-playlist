@@ -171,7 +171,7 @@ input:checked + .ascending-label span {
 }
 
 .sort-by-container:hover:after {
-    right: 0.5%;
+    right: -2%;
 }
 .sort-by-container label {
     /* height: 35px; */
