@@ -16,6 +16,7 @@ function toggleFilterBy(filterByTerm, currTermIdx) {
 
 function addToQueue(sortBy, videosCount, isAscending, ...terms) {
     var elPlayListContainer = document.querySelector('#player-container')
+    var viewsSpansSelector = '#metadata-line > span:first-of-type'
 
 
     if (elPlayListContainer?.children.length) return
@@ -51,16 +52,42 @@ function addToQueue(sortBy, videosCount, isAscending, ...terms) {
 
         // const sortDirection = isAscending ? -1 : 1
         const sortDirection = 1
+        /*TEST START*/
+
         const sortByViews = (els) => {
 
             els.sort((el1, el2) => {
-                const el1ViewsTxt = el1.querySelector("#metadata-line > span:nth-child(2)").innerText
-                const el2ViewsTxt = el2.querySelector("#metadata-line > span:nth-child(2)").innerText
+                const el1Views = el1.querySelector(viewsSpansSelector)
+                const el2Views = el2.querySelector(viewsSpansSelector)
+                const el1ViewsTxt = el1Views.innerText
+                const el2ViewsTxt = el2Views.innerText
                 let el1ViewsCount = getViewsCount(el1ViewsTxt)
                 let el2ViewsCount = getViewsCount(el2ViewsTxt)
                 return (el2ViewsCount - el1ViewsCount) * sortDirection
             })
         }
+
+        /*TEST END*/
+
+
+
+        /*ORIGINAL START*/
+
+        /*
+        const sortByViews = (els) => {
+
+            els.sort((el1, el2) => {
+                const el1ViewsTxt = el1.querySelector("#metadata-line > span:nth-child(2)").innerText
+                const el2ViewsTxt = el2.querySelector("#metadata-line > span:nth-child(2)").innerText
+                alert(el1ViewsTxt, el2ViewsTxt)
+                let el1ViewsCount = getViewsCount(el1ViewsTxt)
+                let el2ViewsCount = getViewsCount(el2ViewsTxt)
+                return (el2ViewsCount - el1ViewsCount) * sortDirection
+            })
+        }
+        */
+
+        /*ORIGINAL END*/
 
 
         // let els = document.querySelectorAll("#items > ytd-grid-video-renderer")
@@ -99,7 +126,7 @@ function addToQueue(sortBy, videosCount, isAscending, ...terms) {
         // chrome.runtime.sendMessage({ type: 'queue', isRunningQueue: false })
     } catch (err) {
         console.log('err:', err)
-        alert('Something went wrong while creating the queue')
+        alert('Something went wrong while creating the queue: ' + err)
     } finally {
         chrome.runtime.sendMessage({ type: 'queue', isRunningQueue: false })
     }
@@ -125,8 +152,8 @@ function scrollToTime(amount, timePeriod, page = 0) {
 
         const checkIsSpanOverTheTime = (elSpan, timesValMap, amount) => {
             let parts = elSpan?.innerText?.split(' ')
-            let spanAmount = parts.at(-3)
-            let spanTimePeriod = parts.at(-2)
+            let spanAmount = parts.at(0)
+            let spanTimePeriod = parts.at(1)
             spanAmount = +spanAmount
             if (timesValMap[spanTimePeriod] > timesValMap[timePeriod]) return true
             if (timesValMap[spanTimePeriod] === timesValMap[timePeriod] && spanAmount >= amount) return true
@@ -149,7 +176,7 @@ function scrollToTime(amount, timePeriod, page = 0) {
             if (gIsStop) return
             timePeriod = timePeriod.toLocaleLowerCase()
             amount = +amount
-            let elSpans = document.querySelectorAll("#metadata-line > span:nth-child(3)")
+            let elSpans = document.querySelectorAll("#metadata-line > span:nth-child(4)")
             elSpans = [...elSpans]
             if (elSpans.length === lastLength) {
                 sameLengthCount++
@@ -164,7 +191,7 @@ function scrollToTime(amount, timePeriod, page = 0) {
             } else if (amount > 1) {
                 if (!timePeriod.endsWith('s')) timePeriod += 's'
             } else return onToggleIsRunning(false)
-            
+
             var elSpansToCheck = [elSpans.at(-30), elSpans.at(-20), elSpans.at(-10), elSpans.at(-1)]
             for (const elSpan of elSpansToCheck) {
                 if (!elSpan) continue
@@ -183,6 +210,8 @@ function scrollToTime(amount, timePeriod, page = 0) {
         innerRecursive(amount, timePeriod, page)
     } catch (err) {
         console.error(err)
+        alert('Something went wrong while loading more videos: ' + err)
+
     }
 
 

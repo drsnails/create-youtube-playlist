@@ -1,7 +1,7 @@
 'use strict'
 
 window.addEventListener('DOMContentLoaded', () => {
-    onInit();
+    onInit()
 })
 const gTerms = ['key', 'top']
 let gCurrTermIdx = 0
@@ -11,11 +11,21 @@ let gElStopBtn
 let gElAscendingInput
 let gTopVideosBtn
 let gTopVideosContainer
+let elTimeAmount
+let elPeriod
 // let gElToggleFilterByBtn
 let gIsRunning = false
 let gIsAscending = false
 // let gIsAll = true
 // let gFilterByTerm = 'key'
+
+const periods = ['days', 'weeks', 'months', 'years']
+
+const periodDaysMap = {
+    days: '13',
+    weeks: '4',
+    months: '11',
+}
 
 function onInit() {
     gElAddToQBtn = document.querySelector('.add-to-q')
@@ -25,6 +35,8 @@ function onInit() {
     // gElToggleFilterByBtn = document.querySelector('.toggle-filterby-btn')
     gTopVideosBtn = document.querySelector('.top-videos-btn')
     gTopVideosContainer = document.querySelector('.top-videos-container')
+    elTimeAmount = document.querySelector('.time-amount')
+    elPeriod = document.querySelector('select[name="period"]')
     addEventListeners()
     chrome.runtime.onMessage.addListener(({ type, isRunningScroll }) => {
         if (type === 'queue') {
@@ -41,13 +53,13 @@ function shakeBtn() {
     gElAddToQBtn.classList.add('shake-animation')
     setTimeout(() => {
         gElAddToQBtn.classList.remove('shake-animation')
-    }, 500);
+    }, 500)
 }
 
 
 
 async function onAddToQueue({ target }) {
-    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
     const elTermInput = document.querySelector('[name="search-term"]')
     // let topVideosCount = +document.querySelector('.top-videos-container input').value
     let videosCount = +document.querySelector('select.num-of-vids').value
@@ -58,8 +70,8 @@ async function onAddToQueue({ target }) {
     chrome.scripting.executeScript({
         target: { tabId: tab.id },
         function: addToQueue,
-        args: [sortBy, videosCount,gIsAscending, ...terms]
-    });
+        args: [sortBy, videosCount, gIsAscending, ...terms]
+    })
 }
 
 
@@ -71,7 +83,7 @@ function onToggleAscending() {
 
 async function onToggleLoadVideos(ev) {
     try {
-        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
         const elTimeAmount = document.querySelector('.time-amount')
         const elPeriod = document.querySelector('select[name="period"]')
         const period = elPeriod.value
@@ -85,17 +97,28 @@ async function onToggleLoadVideos(ev) {
             target: { tabId: tab.id },
             function: func,
             args: [amount, period]
-        });
+        })
     } catch (err) {
         console.error(err)
     }
-
 }
 
+function onInput() {
+    const _amount = elTimeAmount.value
+    const _period = elPeriod.value
+    let { amount, period } = _convertYoutubeDates(+_amount, _period)
+    if (_amount < 0) {
+        let prevPeriodIdx = periods.indexOf(period) - 1
+        period = (prevPeriodIdx < 0) ? 'days' : periods[prevPeriodIdx]
+        amount = (prevPeriodIdx < 0) ? '' : periodDaysMap[period]
+    }
+    elTimeAmount.value = (_amount && _amount !== '0') ? amount : ''
+    elPeriod.value = period
+}
 
 async function onToggleFilterBy() {
     try {
-        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
         // let nextTermIdx = gTerms.findIndex(term => term === gTerms[gCurrTermIdx]) + 1
         gCurrTermIdx = getNextTermIdx()
         changeToggleFilterTermTxt()
@@ -115,12 +138,12 @@ async function onToggleFilterBy() {
 async function onStop() {
     try {
 
-        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
         chrome.scripting.executeScript({
             target: { tabId: tab.id },
             function: stop,
             args: []
-        });
+        })
     } catch (err) {
         console.error(err)
     }
@@ -128,11 +151,13 @@ async function onStop() {
 
 
 function addEventListeners() {
-    gElAddToQBtn.addEventListener('click', onAddToQueue);
-    gTopVideosBtn.addEventListener('click', onAddToQueue);
-    gElLoadVideosBtn.addEventListener('click', onToggleLoadVideos);
-    gElAscendingInput.addEventListener('input', onToggleAscending);
-    // gElToggleFilterByBtn.addEventListener('click', onToggleFilterBy);
+    gElAddToQBtn.addEventListener('click', onAddToQueue)
+    gTopVideosBtn.addEventListener('click', onAddToQueue)
+    gElLoadVideosBtn.addEventListener('click', onToggleLoadVideos)
+    gElAscendingInput.addEventListener('input', onToggleAscending)
+    document.querySelector('.time-amount').addEventListener('input', onInput)
+    document.querySelector('select[name="period"]').addEventListener('change', onInput)
+
 }
 
 function changeStopBtnTxt(isRunning) {
@@ -170,4 +195,50 @@ function onToggleImgLoader() {
 function onToggleFilterByContainer() {
     gTopVideosContainer.classList.toggle('hide')
     document.querySelector('.key-search-container').classList.toggle('hide')
+}
+
+
+function _convertYoutubeDates(amount, period) {
+
+    switch (period) {
+        case 'days': {
+            const res = { amount, period: 'days' }
+            if (amount >= 365) {
+                res.period = 'years'
+                res.amount = parseInt(amount / 365)
+            } else if (amount >= 30) {
+                res.period = 'months'
+                res.amount = parseInt(amount / 30)
+            } else if (amount >= 14) {
+                res.period = 'weeks'
+                res.amount = parseInt(amount / 7)
+            }
+            return res
+        }
+        case 'weeks': {
+            const res = { amount, period: 'weeks' }
+            if (amount >= 52) {
+                res.period = 'years'
+                res.amount = parseInt(amount / 52)
+            } else if (amount >= 4.4) {
+                res.period = 'months'
+                res.amount = parseInt(amount / 4.4)
+            }
+
+            return res
+        }
+        case 'months': {
+            const res = { amount, period: 'months' }
+            if (amount >= 12) {
+                res.period = 'years'
+                res.amount = parseInt(amount / 12)
+            }
+            return res
+        }
+
+        default:
+            return { amount, period }
+    }
+
+
 }
