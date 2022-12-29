@@ -192,7 +192,7 @@ function scrollToTime(amount, timePeriod, page = 0) {
                 if (!timePeriod.endsWith('s')) timePeriod += 's'
             } else return onToggleIsRunning(false)
 
-            var elSpansToCheck = [elSpans.at(-30), elSpans.at(-20), elSpans.at(-10), elSpans.at(-1)]
+            const elSpansToCheck = [elSpans.at(-30), elSpans.at(-20), elSpans.at(-10), elSpans.at(-1)]
             for (const elSpan of elSpansToCheck) {
                 if (!elSpan) continue
                 if (checkIsSpanOverTheTime(elSpan, timesValMap, amount)) return onToggleIsRunning(false)
