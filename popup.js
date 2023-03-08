@@ -61,16 +61,22 @@ function shakeBtn() {
 async function onAddToQueue({ target }) {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
     const elTermInput = document.querySelector('[name="search-term"]')
+    const isFilterByDate = document.querySelector('.date-filter-checkbox').checked
+    
     // let topVideosCount = +document.querySelector('.top-videos-container input').value
     let videosCount = +document.querySelector('select.num-of-vids').value
     let sortBy = document.querySelector('select.sort-by').value
+
+    const period = document.querySelector('select[name="period"]').value
+    let amount = +document.querySelector('.time-amount').value
+    if (!amount) amount = 1
 
     const term = elTermInput.value
     let terms = term.split(',').map(term => term.trim())
     chrome.scripting.executeScript({
         target: { tabId: tab.id },
         function: addToQueue,
-        args: [sortBy, videosCount, gIsAscending, ...terms]
+        args: [sortBy, videosCount, gIsAscending,isFilterByDate, amount, period, ...terms]
     })
 }
 

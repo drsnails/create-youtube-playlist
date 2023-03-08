@@ -14,10 +14,9 @@ function toggleFilterBy(filterByTerm, currTermIdx) {
 
 
 
-function addToQueue(sortBy, videosCount, isAscending, ...terms) {
+function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amount, timePeriod, ...terms) {
     var elPlayListContainer = document.querySelector('#player-container')
     var viewsSpansSelector = '#metadata-line > span:first-of-type'
-
 
     if (elPlayListContainer?.children.length) return
     try {
@@ -33,7 +32,6 @@ function addToQueue(sortBy, videosCount, isAscending, ...terms) {
         }
 
         const getViewsCount = (viewsStr) => {
-            console.log('viewsStr:', viewsStr)
             const numMultMap = {
                 K: 1000,
                 M: 1000000,
@@ -70,7 +68,6 @@ function addToQueue(sortBy, videosCount, isAscending, ...terms) {
         /*TEST END*/
 
 
-
         /*ORIGINAL START*/
 
         /*
@@ -89,6 +86,37 @@ function addToQueue(sortBy, videosCount, isAscending, ...terms) {
 
         /*ORIGINAL END*/
 
+        const timesValMap = {
+            day: 0,
+            days: 0,
+            week: 1,
+            weeks: 1,
+            month: 2,
+            months: 2,
+            year: 3,
+            years: 3,
+        }
+
+
+        const checkIsSpanOverTheTime = (elSpan) => {
+            let parts = elSpan?.innerText?.split(' ')
+            let spanAmount = parts.at(0)
+            let spanTimePeriod = parts.at(1)
+            spanAmount = +spanAmount
+            if (timesValMap[spanTimePeriod] > timesValMap[timePeriod]) return true
+            if (timesValMap[spanTimePeriod] === timesValMap[timePeriod] && spanAmount >= amount) return true
+            return false
+        }
+
+        const filterByDate = (els) => {
+            return els.filter(el => {
+                const elSpan = el.querySelector('#metadata-line > span:nth-of-type(2)')
+                return !checkIsSpanOverTheTime(elSpan)
+            })
+        }
+
+
+
 
         // let els = document.querySelectorAll("#items > ytd-grid-video-renderer")
         // let els = document.querySelectorAll("#contents > ytd-rich-item-renderer")
@@ -97,6 +125,7 @@ function addToQueue(sortBy, videosCount, isAscending, ...terms) {
         if (sortBy === 'top') {
             sortByViews(tempEls)
         }
+        if (isFilterByDate) tempEls = filterByDate(tempEls)
 
         if (!videosCount) videosCount = 200
         let foundVideosCount = 0
