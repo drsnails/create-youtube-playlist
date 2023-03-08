@@ -50,7 +50,6 @@ function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amount, ti
 
         // const sortDirection = isAscending ? -1 : 1
         const sortDirection = 1
-        /*TEST START*/
 
         const sortByViews = (els) => {
 
@@ -65,26 +64,6 @@ function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amount, ti
             })
         }
 
-        /*TEST END*/
-
-
-        /*ORIGINAL START*/
-
-        /*
-        const sortByViews = (els) => {
-
-            els.sort((el1, el2) => {
-                const el1ViewsTxt = el1.querySelector("#metadata-line > span:nth-child(2)").innerText
-                const el2ViewsTxt = el2.querySelector("#metadata-line > span:nth-child(2)").innerText
-                alert(el1ViewsTxt, el2ViewsTxt)
-                let el1ViewsCount = getViewsCount(el1ViewsTxt)
-                let el2ViewsCount = getViewsCount(el2ViewsTxt)
-                return (el2ViewsCount - el1ViewsCount) * sortDirection
-            })
-        }
-        */
-
-        /*ORIGINAL END*/
 
         const timesValMap = {
             day: 0,

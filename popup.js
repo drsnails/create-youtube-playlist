@@ -34,6 +34,7 @@ function onInit() {
     gElAscendingInput = document.querySelector('.ascending-input')
     // gElToggleFilterByBtn = document.querySelector('.toggle-filterby-btn')
     gTopVideosBtn = document.querySelector('.top-videos-btn')
+    console.log('gTopVideosBtn:', gTopVideosBtn)
     gTopVideosContainer = document.querySelector('.top-videos-container')
     elTimeAmount = document.querySelector('.time-amount')
     elPeriod = document.querySelector('select[name="period"]')
@@ -61,7 +62,7 @@ function shakeBtn() {
 async function onAddToQueue({ target }) {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
     const elTermInput = document.querySelector('[name="search-term"]')
-    const isFilterByDate = document.querySelector('.date-filter-checkbox').checked
+    const isFilterByDate = !!document.querySelector('.date-filter-checkbox')?.checked
     
     // let topVideosCount = +document.querySelector('.top-videos-container input').value
     let videosCount = +document.querySelector('select.num-of-vids').value
