@@ -63,7 +63,7 @@ async function onAddToQueue({ target }) {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
     const elTermInput = document.querySelector('[name="search-term"]')
     const isFilterByDate = !!document.querySelector('.date-filter-checkbox')?.checked
-    
+
     // let topVideosCount = +document.querySelector('.top-videos-container input').value
     let videosCount = +document.querySelector('select.num-of-vids').value
     let sortBy = document.querySelector('select.sort-by').value
@@ -77,10 +77,17 @@ async function onAddToQueue({ target }) {
     chrome.scripting.executeScript({
         target: { tabId: tab.id },
         function: addToQueue,
-        args: [sortBy, videosCount, gIsAscending,isFilterByDate, amount, period, ...terms]
+        args: [sortBy, videosCount, gIsAscending, isFilterByDate, amount, period, ...terms]
     })
 }
 
+function getDelimiter(term) {
+    const delimiters = [',', '|']
+    
+    for (const delimiter of delimiters) {
+        // if (term.include(delimiter)) 
+    }
+}
 
 function onToggleAscending() {
     gIsAscending = this.checked
