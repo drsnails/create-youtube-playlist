@@ -13,8 +13,20 @@ function toggleFilterBy(filterByTerm, currTermIdx) {
 
 
 
-
-function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amount, timePeriod, ...terms) {
+/**
+Adds a specified number of videos to the YouTube queue based on the given parameters.
+@async
+@function addToQueue
+@param {string} sortBy - The sorting criterion ('top' for sorting by views).
+@param {number} videosCount - The maximum number of videos to add to the queue.
+@param {boolean} isAscending - If true, the videos will be added in ascending order based on the sorting criterion.
+@param {boolean} isFilterByDate - If true, the videos will be filtered by the given date criteria.
+@param {number} amount - The number of units of the specified time period to filter videos by (e.g., if timePeriod is 'weeks', and amount is 2, videos older than 2 weeks will be filtered out).
+@param {string} timePeriod - The time period used for filtering videos ('day', 'days', 'week', 'weeks', 'month', 'months', 'year', 'years').
+@param {...string} terms - One or more search terms to filter videos by. Videos with titles matching any of the terms will be added to the queue.
+@throws Will throw an error if something goes wrong while creating the queue.
+*/
+async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amount, timePeriod, ...terms) {
     var elPlayListContainer = document.querySelector('#player-container')
     var viewsSpansSelector = '#metadata-line > span:first-of-type'
 
@@ -31,6 +43,7 @@ function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amount, ti
             return isInclude.test(string)
         }
 
+        const sleep = (time = 0) => new Promise((resolve) => setTimeout(resolve, time))
         const getViewsCount = (viewsStr) => {
             const numMultMap = {
                 K: 1000,
@@ -108,6 +121,7 @@ function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amount, ti
 
         if (!videosCount) videosCount = 200
         let foundVideosCount = 0
+        console.log('videosCount:', videosCount)
         let els = []
         for (const el of tempEls) {
             const title = el.querySelector('#video-title').innerText
@@ -124,10 +138,10 @@ function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amount, ti
             const mouseenterEvent = new Event('mouseenter');
             el.dispatchEvent(mouseenterEvent);
             var elAddToQueue = el.querySelector('ytd-thumbnail-overlay-toggle-button-renderer:nth-child(2) #icon.ytd-thumbnail-overlay-toggle-button-renderer')
+            await sleep(0) // multiple picks for the same videos without the sleep
             elAddToQueue?.click()
             const mouseleaveEvent = new Event('mouseleave');
             el.dispatchEvent(mouseleaveEvent);
-
         }
 
 
@@ -146,7 +160,14 @@ function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amount, ti
 
 
 
-
+/**
+Scrolls through a YouTube video list page until reaching videos within a specified time period.
+@function scrollToTime
+@param {number} amount - The number of units of the specified time period to scroll to (e.g., if timePeriod is 'weeks', and amount is 2, the function will scroll until reaching videos that are 2 weeks old).
+@param {string} timePeriod - The time period used to determine the scrolling target ('day', 'days', 'week', 'weeks', 'month', 'months', 'year', 'years').
+@param {number} [page=0] - The starting page number for scrolling (default is 0).
+@throws Will throw an error if something goes wrong while loading more videos.
+*/
 function scrollToTime(amount, timePeriod, page = 0) {
     gIsStop = false
 
