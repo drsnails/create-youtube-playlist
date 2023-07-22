@@ -314,6 +314,17 @@ input {
     flex-direction: column;
 }
 
+.clear-btn {
+    color: white;
+    background: none;
+    border: none;
+    text-decoration: underline;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+
 @keyframes shake {
     0% {
         transform: rotateZ(-1deg);
