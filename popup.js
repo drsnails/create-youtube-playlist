@@ -39,6 +39,21 @@ function onInit() {
     elTimeAmount = document.querySelector('.time-amount')
     elPeriod = document.querySelector('select[name="period"]')
     addEventListeners()
+    const inputsData = loadFromStorage('inputsData')
+    if (inputsData && false) {
+        const { term, isFilterByDate, videosCount, period, amount, sortBy } = inputsData
+        const elTermInput = document.querySelector('[name="search-term"]')
+        const elFilterCheckbox = document.querySelector('.date-filter-checkbox')
+        const elVideosCount = document.querySelector('select.num-of-vids')
+        const elSortBy = document.querySelector('select.sort-by')
+
+        elTermInput.value = term
+        elFilterCheckbox.checked = isFilterByDate
+        elVideosCount.value = videosCount
+        elPeriod.value = period
+        elTimeAmount.value = amount
+        elSortBy.value = sortBy
+    }
     chrome.runtime.onMessage.addListener(({ type, isRunningScroll }) => {
         if (type === 'queue') {
             onToggleImgLoader()
@@ -83,7 +98,7 @@ async function onAddToQueue({ target }) {
 
 function getDelimiter(term) {
     const delimiters = [',', '|']
-    
+
     for (const delimiter of delimiters) {
         // if (term.include(delimiter)) 
     }
@@ -255,4 +270,13 @@ function _convertYoutubeDates(amount, period) {
     }
 
 
+}
+
+function saveToStorage(key, data) {
+    localStorage.setItem(key, JSON.stringify(data))
+}
+
+function loadFromStorage(key) {
+    const data = localStorage.getItem(key)
+    return JSON.parse(data)
 }
