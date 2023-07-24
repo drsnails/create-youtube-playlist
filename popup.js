@@ -3,6 +3,8 @@
 window.addEventListener('DOMContentLoaded', () => {
     onInit()
 })
+
+const storageKey = 'inputsData'
 const gTerms = ['key', 'top']
 let gCurrTermIdx = 0
 let gElAddToQBtn
@@ -39,9 +41,10 @@ function onInit() {
     elTimeAmount = document.querySelector('.time-amount')
     elPeriod = document.querySelector('select[name="period"]')
     addEventListeners()
-    const inputsData = loadFromStorage('inputsData')
-    if (inputsData && false) {
-        const { term, isFilterByDate, videosCount, period, amount, sortBy } = inputsData
+    const inputsData = loadFromStorage(storageKey)
+
+    if (inputsData) {
+        const { term, isFilterByDate, videosCount, period, amount, sortBy, isAscending } = inputsData
         const elTermInput = document.querySelector('[name="search-term"]')
         const elFilterCheckbox = document.querySelector('.date-filter-checkbox')
         const elVideosCount = document.querySelector('select.num-of-vids')
@@ -53,6 +56,8 @@ function onInit() {
         elPeriod.value = period
         elTimeAmount.value = amount
         elSortBy.value = sortBy
+        gElAscendingInput.checked = isAscending
+        gIsAscending = isAscending
     }
     chrome.runtime.onMessage.addListener(({ type, isRunningScroll }) => {
         if (type === 'queue') {
@@ -77,6 +82,7 @@ function shakeBtn() {
 async function onAddToQueue({ target }) {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
     const elTermInput = document.querySelector('[name="search-term"]')
+    const term = elTermInput.value
     const isFilterByDate = !!document.querySelector('.date-filter-checkbox')?.checked
 
     // let topVideosCount = +document.querySelector('.top-videos-container input').value
@@ -86,8 +92,18 @@ async function onAddToQueue({ target }) {
     const period = document.querySelector('select[name="period"]').value
     let amount = +document.querySelector('.time-amount').value
     if (!amount) amount = 1
+    // const { term, isFilterByDate, videosCount, period, amount, sortBy } = inputsData
+    const inputsData = {
+        term,
+        isFilterByDate,
+        videosCount,
+        period,
+        amount,
+        sortBy,
+        isAscending: gElAscendingInput.value === 'on'
+    }
+    saveToStorage(storageKey, inputsData)
 
-    const term = elTermInput.value
     let terms = term.split(',').map(term => term.trim())
     chrome.scripting.executeScript({
         target: { tabId: tab.id },
@@ -164,6 +180,30 @@ async function onToggleFilterBy() {
 }
 
 
+function saveInputsDataToStorage() {
+
+}
+
+
+function onClearInputs() {
+
+    const elTermInput = document.querySelector('[name="search-term"]')
+    const elFilterCheckbox = document.querySelector('.date-filter-checkbox')
+    const elVideosCount = document.querySelector('select.num-of-vids')
+    const elSortBy = document.querySelector('select.sort-by')
+
+    elPeriod.value = 'days'
+    elTimeAmount.value = null
+    gElAscendingInput.checked = false
+
+    elTermInput.value = ''
+    elFilterCheckbox.checked = false
+    elVideosCount.value = ''
+    elSortBy.value = 'date'
+    saveToStorage(storageKey, null)
+
+}
+
 async function onStop() {
     try {
 
@@ -186,6 +226,7 @@ function addEventListeners() {
     gElAscendingInput.addEventListener('input', onToggleAscending)
     document.querySelector('.time-amount').addEventListener('input', onInput)
     document.querySelector('select[name="period"]').addEventListener('change', onInput)
+    document.querySelector('.clear-btn').addEventListener('click', onClearInputs)
 
 }
 
