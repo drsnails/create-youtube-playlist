@@ -83,7 +83,7 @@ async function onAddToQueue({ target }) {
 
 function getDelimiter(term) {
     const delimiters = [',', '|']
-    
+
     for (const delimiter of delimiters) {
         // if (term.include(delimiter)) 
     }
@@ -256,3 +256,5 @@ function _convertYoutubeDates(amount, period) {
 
 
 }
+
+
