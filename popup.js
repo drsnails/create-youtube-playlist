@@ -42,7 +42,6 @@ function onInit() {
     elPeriod = document.querySelector('select[name="period"]')
     addEventListeners()
     const inputsData = loadFromStorage(storageKey)
-
     if (inputsData) {
         const { term, isFilterByDate, videosCount, period, amount, sortBy, isAscending } = inputsData
         const elTermInput = document.querySelector('[name="search-term"]')
@@ -52,7 +51,7 @@ function onInit() {
 
         elTermInput.value = term
         elFilterCheckbox.checked = isFilterByDate
-        elVideosCount.value = videosCount
+        elVideosCount.value = videosCount || ''
         elPeriod.value = period
         elTimeAmount.value = amount
         elSortBy.value = sortBy
@@ -180,11 +179,6 @@ async function onToggleFilterBy() {
 }
 
 
-function saveInputsDataToStorage() {
-
-}
-
-
 function onClearInputs() {
 
     const elTermInput = document.querySelector('[name="search-term"]')
@@ -247,7 +241,6 @@ function changeToggleFilterTermTxt() {
         txt = 'search by keyword'
     }
     gElToggleFilterByBtn.querySelector('span').innerText = txt
-
 }
 
 function getNextTermIdx() {
