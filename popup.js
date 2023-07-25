@@ -92,6 +92,7 @@ async function onAddToQueue({ target }) {
     let amount = +document.querySelector('.time-amount').value
     if (!amount) amount = 1
     // const { term, isFilterByDate, videosCount, period, amount, sortBy } = inputsData
+    console.log('gElAscendingInput.checked:', gElAscendingInput.checked)
     const inputsData = {
         term,
         isFilterByDate,
@@ -99,15 +100,14 @@ async function onAddToQueue({ target }) {
         period,
         amount,
         sortBy,
-        isAscending: gElAscendingInput.value === 'on'
+        isAscending: gElAscendingInput.checked
     }
     saveToStorage(storageKey, inputsData)
 
-    let terms = term.split(',').map(term => term.trim())
     chrome.scripting.executeScript({
         target: { tabId: tab.id },
         function: addToQueue,
-        args: [sortBy, videosCount, gIsAscending, isFilterByDate, amount, period, ...terms]
+        args: [sortBy, videosCount, gIsAscending, isFilterByDate, amount, period, term]
     })
 }
 
@@ -150,6 +150,8 @@ async function onToggleLoadVideos(ev) {
 function onInput() {
     const _amount = elTimeAmount.value
     const _period = elPeriod.value
+    console.log({ _amount, _period })
+
     let { amount, period } = _convertYoutubeDates(+_amount, _period)
     if (_amount < 0) {
         let prevPeriodIdx = periods.indexOf(period) - 1

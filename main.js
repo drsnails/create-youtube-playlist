@@ -23,10 +23,10 @@ Adds a specified number of videos to the YouTube queue based on the given parame
 @param {boolean} isFilterByDate - If true, the videos will be filtered by the given date criteria.
 @param {number} amount - The number of units of the specified time period to filter videos by (e.g., if timePeriod is 'weeks', and amount is 2, videos older than 2 weeks will be filtered out).
 @param {string} timePeriod - The time period used for filtering videos ('day', 'days', 'week', 'weeks', 'month', 'months', 'year', 'years').
-@param {...string} terms - One or more search terms to filter videos by. Videos with titles matching any of the terms will be added to the queue.
+@param {string} term - string term that can be split into multiple terms and filtered based on the delimiter
 @throws Will throw an error if something goes wrong while creating the queue.
 */
-async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amount, timePeriod, ...terms) {
+async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amount, timePeriod, term) {
     var elPlayListContainer = document.querySelector('#player-container')
     var viewsSpansSelector = '#metadata-line > span:first-of-type'
 
@@ -41,6 +41,31 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
             const isInclude = new RegExp(searchKey, 'i')
 
             return isInclude.test(string)
+        }
+
+        const getDelimiter = (term) => {
+            const delimiters = ['||', '&&']
+            for (let i = 0; i < delimiters.length; i++) {
+                const delimiter = delimiters[i]
+                if (term.includes(delimiter)) return delimiter
+            }
+            return '***'
+        }
+
+
+        const getIsInclude = (terms, title, delimiter) => {
+            switch (delimiter) {
+                case '||': {
+                    return terms.some(term => isSearchKeyInclude(title, term))
+                }
+                case '&&': {
+                    return terms.every(term => isSearchKeyInclude(title, term))
+                }
+
+                default:
+                    return isSearchKeyInclude(title, terms[0])
+            }
+
         }
 
         const sleep = (time = 0) => new Promise((resolve) => setTimeout(resolve, time))
@@ -123,9 +148,13 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
         let foundVideosCount = 0
         console.log('videosCount:', videosCount)
         let els = []
+
+        const delimiter = getDelimiter(term)
+        const terms = term.split(delimiter)
         for (const el of tempEls) {
             const title = el.querySelector('#video-title').innerText
-            const isIncludes = terms.some(term => isSearchKeyInclude(title, term))
+            // const isIncludes = terms.some(term => isSearchKeyInclude(title, term))
+            const isIncludes = getIsInclude(terms, title, delimiter)
             if (isIncludes) {
                 foundVideosCount++
                 els.push(el)
