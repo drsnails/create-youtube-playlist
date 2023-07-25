@@ -150,7 +150,7 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
         let els = []
 
         const delimiter = getDelimiter(term)
-        const terms = term.split(delimiter)
+        const terms = term.split(delimiter).map(term => term.trim())
         for (const el of tempEls) {
             const title = el.querySelector('#video-title').innerText
             // const isIncludes = terms.some(term => isSearchKeyInclude(title, term))
