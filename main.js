@@ -35,11 +35,10 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
 
         chrome.runtime.sendMessage({ type: 'queue', isRunningQueue: true })
         const isSearchKeyInclude = (string, searchKey) => {
+            // alert('string:' + string + ' searchKey:' + searchKey)
             if (!searchKey) return true
-            // * comment next line for normal filter
-            // searchKey = '.*' + searchKey.split('').join('.*') + '.*' 
+            if (searchKey.startsWith('-')) return !isSearchKeyInclude(string, searchKey.slice(1))
             const isInclude = new RegExp(searchKey, 'i')
-
             return isInclude.test(string)
         }
 
@@ -120,8 +119,15 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
             let spanAmount = parts.at(0)
             let spanTimePeriod = parts.at(1)
             spanAmount = +spanAmount
-            if (timesValMap[spanTimePeriod] > timesValMap[timePeriod]) return true
-            if (timesValMap[spanTimePeriod] === timesValMap[timePeriod] && spanAmount >= amount) return true
+
+            let _amount = amount
+            let _timePeriod = timePeriod
+            if (_amount === 1 && _timePeriod === 'weeks') {
+                _amount = 7
+                _timePeriod = 'days'
+            }
+            if (timesValMap[spanTimePeriod] > timesValMap[_timePeriod]) return true
+            if (timesValMap[spanTimePeriod] === timesValMap[_timePeriod] && spanAmount >= _amount) return true
             return false
         }
 
@@ -167,7 +173,7 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
             const mouseenterEvent = new Event('mouseenter');
             el.dispatchEvent(mouseenterEvent);
             var elAddToQueue = el.querySelector('ytd-thumbnail-overlay-toggle-button-renderer:nth-child(2) #icon.ytd-thumbnail-overlay-toggle-button-renderer')
-            await sleep(0) // multiple picks for the same videos without the sleep
+            await sleep(0) // ? multiple picks for the same videos without the sleep
             elAddToQueue?.click()
             const mouseleaveEvent = new Event('mouseleave');
             el.dispatchEvent(mouseleaveEvent);
