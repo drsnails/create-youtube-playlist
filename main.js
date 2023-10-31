@@ -44,13 +44,8 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
 
         const getDelimiter = (term) => {
             const delimiters = ['||', '&&']
-            for (let i = 0; i < delimiters.length; i++) {
-                const delimiter = delimiters[i]
-                if (term.includes(delimiter)) return delimiter
-            }
-            return '***'
+            return delimiters.find(delimiter => term.includes(delimiter)) || '***'
         }
-
 
         const getIsInclude = (terms, title, delimiter) => {
             switch (delimiter) {
