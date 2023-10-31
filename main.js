@@ -42,29 +42,42 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
             return isInclude.test(string)
         }
 
-        const getDelimiter = (term) => {
-            const delimiters = ['&&', '||'] // ! the order here matters for order of logic operations!
-            return delimiters.find(delimiter => term.includes(delimiter)) || '***'
-        }
+        const evaluateExpression = (expr, title) => {
+            while (true) {
+                const start = expr.lastIndexOf('(');
+                if (start === -1) break;
+                const end = expr.indexOf(')', start);
+                if (end === -1) break;
 
-        const getIsInclude = (term, title) => {
-
-            const delimiter = getDelimiter(term)
-            const terms = term.split(delimiter).map(term => term.trim())
-
-            // ! the order here matters for order of logic operations!
-            if (delimiter === '&&') {
-                return terms.every(_term => getIsInclude(_term, title))
+                const subExpr = expr.substring(start + 1, end);
+                const result = evaluateSimpleExpression(subExpr, title) ? 'true' : 'false';
+                expr = expr.substring(0, start) + result + expr.substring(end + 1);
             }
+            return evaluateSimpleExpression(expr, title);
+        };
 
-            if (delimiter === '||') {
-                return terms.some(_term => getIsInclude(_term, title))
-            }
+        const evaluateSimpleExpression = (expr, title) => {
+            const orTerms = expr.split('||').map(term => term.trim());
 
-            if (term.startsWith('-')) return !getIsInclude(term.slice(1), title)
-            const termRegexp = new RegExp(term, 'i')
-            return termRegexp.test(title)
-        }
+            return orTerms.some(orTerm => {
+                const andTerms = orTerm.split('&&').map(term => term.trim());
+                return andTerms.every(andTerm => {
+                    if (andTerm === 'true') return true;
+                    if (andTerm === 'false') return false;
+
+                    if (andTerm.startsWith('-')) {
+                        const term = andTerm.slice(1);
+                        return !evaluateTerm(term, title);
+                    }
+                    return evaluateTerm(andTerm, title);
+                });
+            });
+        };
+
+        const evaluateTerm = (term, title) => {
+            const termRegexp = new RegExp(term, 'i');
+            return termRegexp.test(title);
+        };
 
         const sleep = (time = 0) => new Promise((resolve) => setTimeout(resolve, time))
         const getViewsCount = (viewsStr) => {
@@ -157,7 +170,7 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
 
         for (const el of tempEls) {
             const title = el.querySelector('#video-title').innerText
-            const isIncludes = getIsInclude(term, title)
+            const isIncludes = evaluateExpression(term, title)
             if (isIncludes) {
                 foundVideosCount++
                 els.push(el)
