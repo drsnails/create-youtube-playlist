@@ -43,23 +43,27 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
         }
 
         const getDelimiter = (term) => {
-            const delimiters = ['||', '&&']
+            const delimiters = ['&&', '||'] // ! the order here matters for order of logic operations!
             return delimiters.find(delimiter => term.includes(delimiter)) || '***'
         }
 
-        const getIsInclude = (terms, title, delimiter) => {
-            switch (delimiter) {
-                case '||': {
-                    return terms.some(term => isSearchKeyInclude(title, term))
-                }
-                case '&&': {
-                    return terms.every(term => isSearchKeyInclude(title, term))
-                }
+        const getIsInclude = (term, title) => {
 
-                default:
-                    return isSearchKeyInclude(title, terms[0])
+            const delimiter = getDelimiter(term)
+            const terms = term.split(delimiter).map(term => term.trim())
+
+            // ! the order here matters for order of logic operations!
+            if (delimiter === '&&') {
+                return terms.every(_term => getIsInclude(_term, title))
             }
 
+            if (delimiter === '||') {
+                return terms.some(_term => getIsInclude(_term, title))
+            }
+
+            if (term.startsWith('-')) return !getIsInclude(term.slice(1), title)
+            const termRegexp = new RegExp(term, 'i')
+            return termRegexp.test(title)
         }
 
         const sleep = (time = 0) => new Promise((resolve) => setTimeout(resolve, time))
@@ -150,12 +154,10 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
         console.log('videosCount:', videosCount)
         let els = []
 
-        const delimiter = getDelimiter(term)
-        const terms = term.split(delimiter).map(term => term.trim())
+
         for (const el of tempEls) {
             const title = el.querySelector('#video-title').innerText
-            // const isIncludes = terms.some(term => isSearchKeyInclude(title, term))
-            const isIncludes = getIsInclude(terms, title, delimiter)
+            const isIncludes = getIsInclude(term, title)
             if (isIncludes) {
                 foundVideosCount++
                 els.push(el)
