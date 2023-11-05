@@ -164,9 +164,7 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
 
         if (!videosCount) videosCount = 200
         let foundVideosCount = 0
-        console.log('videosCount:', videosCount)
         let els = []
-
 
         for (const el of tempEls) {
             const title = el.querySelector('#video-title').innerText
