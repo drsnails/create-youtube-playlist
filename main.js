@@ -196,22 +196,18 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
             const apiKey = 'AIzaSyCOY-zmO2keRWrtT2pmGtUHH8UiYEBF0LU'
             title = title.trim()
             channelName = channelName.trim()
-            // Encode the title for use in the URL
             const encodedTitle = encodeURIComponent(title);
 
-            // Construct the YouTube API search endpoint with parameters
             const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=${encodedTitle}&type=video&key=${apiKey}`;
 
-            // Use the Fetch API to make the request to the YouTube API
             return fetch(searchUrl)
                 .then(response => response.json())
                 .then(data => {
-                    // Filter the results by the channel name
+
                     // const allVideos = data.items.map(item => item.snippet.channelTitle);
                     // console.log('allVideos:', allVideos)
                     const videos = data.items.filter(item => item.snippet.channelTitle.toLowerCase() === channelName.toLowerCase());
                     if (videos.length) {
-                        // Do something with the video information
                         const video = videos.find(item => item.snippet.title)
                         const videoId = video.id.videoId;
                         const videoDetailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoId}&key=${apiKey}`;
