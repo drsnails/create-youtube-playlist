@@ -151,7 +151,8 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
         }
 
 
-
+        const url = window.location.href
+        const channel = url.split('/')[3].substring(1)
 
         // let els = document.querySelectorAll("#items > ytd-grid-video-renderer")
         // let els = document.querySelectorAll("#contents > ytd-rich-item-renderer")
@@ -167,7 +168,9 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
         let els = []
 
         for (const el of tempEls) {
+
             const title = el.querySelector('#video-title').innerText
+
             const isIncludes = evaluateExpression(term, title)
             if (isIncludes) {
                 foundVideosCount++
@@ -187,6 +190,58 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
             el.dispatchEvent(mouseleaveEvent);
         }
 
+
+
+        function getVideoData(title, channelName) {
+            const apiKey = 'AIzaSyCOY-zmO2keRWrtT2pmGtUHH8UiYEBF0LU'
+            title = title.trim()
+            channelName = channelName.trim()
+            // Encode the title for use in the URL
+            const encodedTitle = encodeURIComponent(title);
+
+            // Construct the YouTube API search endpoint with parameters
+            const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=${encodedTitle}&type=video&key=${apiKey}`;
+
+            // Use the Fetch API to make the request to the YouTube API
+            return fetch(searchUrl)
+                .then(response => response.json())
+                .then(data => {
+                    // Filter the results by the channel name
+                    // const allVideos = data.items.map(item => item.snippet.channelTitle);
+                    // console.log('allVideos:', allVideos)
+                    const videos = data.items.filter(item => item.snippet.channelTitle.toLowerCase() === channelName.toLowerCase());
+                    if (videos.length) {
+                        // Do something with the video information
+                        const video = videos.find(item => item.snippet.title)
+                        const videoId = video.id.videoId;
+                        const videoDetailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoId}&key=${apiKey}`;
+
+                        return fetch(videoDetailsUrl)
+                            .then(response => response.json())
+                            .then(details => ({ details, video }))
+
+                    } else {
+                        throw new Error('No video found for the given title and channel name.');
+                    }
+                })
+                .then(({ video, details }) => {
+                    const { viewCount, likeCount } = details.items[0].statistics;
+                    const publishedAt = new Date(video.snippet.publishedAt).getTime()
+                    const { description, channelId } = video.snippet
+                    const videoId = video.id.videoId
+                    return {
+                        viewCount: +viewCount,
+                        likeCount: +likeCount,
+                        publishedAt,
+                        description,
+                        channelId,
+                        videoId
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
 
         // chrome.runtime.sendMessage({ type: 'queue', isRunningQueue: false })
     } catch (err) {
