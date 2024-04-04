@@ -41,43 +41,45 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
             const isInclude = new RegExp(searchKey, 'i')
             return isInclude.test(string)
         }
-
+        // a || (b && (!true))
         const evaluateExpression = (expr, title) => {
             while (true) {
-                const start = expr.lastIndexOf('(');
-                if (start === -1) break;
-                const end = expr.indexOf(')', start);
-                if (end === -1) break;
+                const startIdx = expr.lastIndexOf('(')
+                if (startIdx === -1) break
+                const endIdx = expr.indexOf(')', startIdx)
+                if (endIdx === -1) break
 
-                const subExpr = expr.substring(start + 1, end);
-                const result = evaluateSimpleExpression(subExpr, title) ? 'true' : 'false';
-                expr = expr.substring(0, start) + result + expr.substring(end + 1);
+                const subExpr = expr.substring(startIdx + 1, endIdx)
+                const result = evaluateSimpleExpression(subExpr, title) ? 'true' : 'false'
+                expr = expr.substring(0, startIdx) + result + expr.substring(endIdx + 1)
             }
-            return evaluateSimpleExpression(expr, title);
+            return evaluateSimpleExpression(expr, title)
         };
 
+
+        // a || (b && (!(c && 'true' || f)))
         const evaluateSimpleExpression = (expr, title) => {
-            const orTerms = expr.split('||').map(term => term.trim());
+            const orTerms = expr.split('||').map(term => term.trim())
 
             return orTerms.some(orTerm => {
-                const andTerms = orTerm.split('&&').map(term => term.trim());
+                const andTerms = orTerm.split('&&').map(term => term.trim())
                 return andTerms.every(andTerm => {
-                    if (andTerm === 'true') return true;
-                    if (andTerm === 'false') return false;
+                    if (andTerm === 'true' || andTerm === '-false') return true
+                    if (andTerm === 'false' || andTerm === '-true') return false
 
                     if (andTerm.startsWith('-')) {
-                        const term = andTerm.slice(1);
-                        return !evaluateTerm(term, title);
+                        const term = andTerm.slice(1)
+                        return !evaluateTerm(term, title)
                     }
-                    return evaluateTerm(andTerm, title);
-                });
-            });
-        };
+                    return evaluateTerm(andTerm, title)
+                })
+            })
+        }
 
         const evaluateTerm = (term, title) => {
-            const termRegexp = new RegExp(term, 'i');
-            return termRegexp.test(title);
-        };
+            const termRegexp = new RegExp(term, 'i')
+            return termRegexp.test(title)
+        }
 
         const sleep = (time = 0) => new Promise((resolve) => setTimeout(resolve, time))
         const getViewsCount = (viewsStr) => {
@@ -192,52 +194,6 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
 
 
 
-        function getVideoData(title, channelName) {
-            const apiKey = 'AIzaSyCOY-zmO2keRWrtT2pmGtUHH8UiYEBF0LU'
-            title = title.trim()
-            channelName = channelName.trim()
-            const encodedTitle = encodeURIComponent(title);
-
-            const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=${encodedTitle}&type=video&key=${apiKey}`;
-
-            return fetch(searchUrl)
-                .then(response => response.json())
-                .then(data => {
-
-                    // const allVideos = data.items.map(item => item.snippet.channelTitle);
-                    // console.log('allVideos:', allVideos)
-                    const videos = data.items.filter(item => item.snippet.channelTitle.toLowerCase() === channelName.toLowerCase());
-                    if (videos.length) {
-                        const video = videos.find(item => item.snippet.title)
-                        const videoId = video.id.videoId;
-                        const videoDetailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoId}&key=${apiKey}`;
-
-                        return fetch(videoDetailsUrl)
-                            .then(response => response.json())
-                            .then(details => ({ details, video }))
-
-                    } else {
-                        throw new Error('No video found for the given title and channel name.');
-                    }
-                })
-                .then(({ video, details }) => {
-                    const { viewCount, likeCount } = details.items[0].statistics;
-                    const publishedAt = new Date(video.snippet.publishedAt).getTime()
-                    const { description, channelId } = video.snippet
-                    const videoId = video.id.videoId
-                    return {
-                        viewCount: +viewCount,
-                        likeCount: +likeCount,
-                        publishedAt,
-                        description,
-                        channelId,
-                        videoId
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        }
 
         // chrome.runtime.sendMessage({ type: 'queue', isRunningQueue: false })
     } catch (err) {
@@ -330,11 +286,12 @@ function scrollToTime(amount, timePeriod, page = 0) {
         }
 
         window.scrollTo(0, page * 10000 + window.scrollY + 1000)
-        innerRecursive(amount, timePeriod, page)
+        return innerRecursive(amount, timePeriod, page)
     } catch (err) {
         console.log(err)
         alert('Something went wrong while loading more videos: ' + err)
-
+    } finally {
+        console.log('finally inside load');
     }
 
 

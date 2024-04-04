@@ -92,7 +92,7 @@ async function onAddToQueue({ target }) {
     let amount = +document.querySelector('.time-amount').value
     if (!amount) amount = 1
     // const { term, isFilterByDate, videosCount, period, amount, sortBy } = inputsData
-    console.log('gElAscendingInput.checked:', gElAscendingInput.checked)
+    // console.log('gElAscendingInput.checked:', gElAscendingInput.checked)
     const inputsData = {
         term,
         isFilterByDate,
@@ -104,11 +104,20 @@ async function onAddToQueue({ target }) {
     }
     saveToStorage(storageKey, inputsData)
 
-    chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        function: addToQueue,
-        args: [sortBy, videosCount, gIsAscending, isFilterByDate, amount, period, term]
-    })
+    try {
+        await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            function: addToQueue,
+            args: [sortBy, videosCount, gIsAscending, isFilterByDate, amount, period, term]
+        })
+    } catch (error) {
+        console.log('error:', error)
+
+    } finally {
+       
+    }
+
+
 }
 
 function getDelimiter(term) {
@@ -137,13 +146,15 @@ async function onToggleLoadVideos(ev) {
         gIsRunning = !gIsRunning
         changeStopBtnTxt(gIsRunning)
 
-        chrome.scripting.executeScript({
+        await chrome.scripting.executeScript({
             target: { tabId: tab.id },
             function: func,
             args: [amount, period]
         })
     } catch (err) {
         console.error(err)
+    } finally {
+        // console.log('finally load');
     }
 }
 
