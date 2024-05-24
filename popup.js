@@ -36,21 +36,23 @@ function onInit() {
     gElAscendingInput = document.querySelector('.ascending-input')
     // gElToggleFilterByBtn = document.querySelector('.toggle-filterby-btn')
     gTopVideosBtn = document.querySelector('.top-videos-btn')
-    console.log('gTopVideosBtn:', gTopVideosBtn)
+    // console.log('gTopVideosBtn:', gTopVideosBtn)
     gTopVideosContainer = document.querySelector('.top-videos-container')
     elTimeAmount = document.querySelector('.time-amount')
     elPeriod = document.querySelector('select[name="period"]')
     addEventListeners()
     const inputsData = loadFromStorage(storageKey)
     if (inputsData) {
-        const { term, isFilterByDate, videosCount, period, amount, sortBy, isAscending } = inputsData
+        const { term, isFilterByDate, isNotWatched, videosCount, period, amount, sortBy, isAscending } = inputsData
         const elTermInput = document.querySelector('[name="search-term"]')
         const elFilterCheckbox = document.querySelector('.date-filter-checkbox')
+        const elIsNotWatched = document.querySelector('.not-watched-filter-checkbox')
         const elVideosCount = document.querySelector('select.num-of-vids')
         const elSortBy = document.querySelector('select.sort-by')
 
         elTermInput.value = term
         elFilterCheckbox.checked = isFilterByDate
+        elIsNotWatched.checked = isNotWatched
         elVideosCount.value = videosCount || ''
         elPeriod.value = period
         elTimeAmount.value = amount
@@ -83,7 +85,7 @@ async function onAddToQueue({ target }) {
     const elTermInput = document.querySelector('[name="search-term"]')
     const term = elTermInput.value
     const isFilterByDate = !!document.querySelector('.date-filter-checkbox')?.checked
-
+    const isNotWatched = !!document.querySelector('.not-watched-filter-checkbox')?.checked
     // let topVideosCount = +document.querySelector('.top-videos-container input').value
     let videosCount = +document.querySelector('select.num-of-vids').value
     let sortBy = document.querySelector('select.sort-by').value
@@ -96,6 +98,7 @@ async function onAddToQueue({ target }) {
     const inputsData = {
         term,
         isFilterByDate,
+        isNotWatched,
         videosCount,
         period,
         amount,
@@ -108,13 +111,22 @@ async function onAddToQueue({ target }) {
         await chrome.scripting.executeScript({
             target: { tabId: tab.id },
             function: addToQueue,
-            args: [sortBy, videosCount, gIsAscending, isFilterByDate, amount, period, term]
+            args: [{
+                sortBy,
+                videosCount,
+                isAscending: gIsAscending,
+                isFilterByDate,
+                isNotWatched,
+                amount,
+                timePeriod: period,
+                term
+            }]
         })
     } catch (error) {
         console.log('error:', error)
 
     } finally {
-       
+
     }
 
 
@@ -198,6 +210,7 @@ function onClearInputs() {
     const elFilterCheckbox = document.querySelector('.date-filter-checkbox')
     const elVideosCount = document.querySelector('select.num-of-vids')
     const elSortBy = document.querySelector('select.sort-by')
+    const elIsNotWatched = document.querySelector('.not-watched-filter-checkbox')
 
     elPeriod.value = 'days'
     elTimeAmount.value = null
@@ -205,6 +218,7 @@ function onClearInputs() {
 
     elTermInput.value = ''
     elFilterCheckbox.checked = false
+    elIsNotWatched.checked = false
     elVideosCount.value = ''
     elSortBy.value = 'date'
     saveToStorage(storageKey, null)
@@ -228,7 +242,7 @@ async function onStop() {
 
 function addEventListeners() {
     gElAddToQBtn.addEventListener('click', onAddToQueue)
-    gTopVideosBtn.addEventListener('click', onAddToQueue)
+    // gTopVideosBtn.addEventListener('click', onAddToQueue)
     gElLoadVideosBtn.addEventListener('click', onToggleLoadVideos)
     gElAscendingInput.addEventListener('input', onToggleAscending)
     document.querySelector('.time-amount').addEventListener('input', onInput)

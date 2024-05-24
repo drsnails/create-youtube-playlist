@@ -26,7 +26,7 @@ Adds a specified number of videos to the YouTube queue based on the given parame
 @param {string} term - string term that can be split into multiple terms and filtered based on the delimiter
 @throws Will throw an error if something goes wrong while creating the queue.
 */
-async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amount, timePeriod, term) {
+async function addToQueue({ sortBy, videosCount, isAscending, isFilterByDate, isNotWatched, amount, timePeriod, term }) {
     var elPlayListContainer = document.querySelector('#player-container')
     var viewsSpansSelector = '#metadata-line > span:first-of-type'
 
@@ -152,6 +152,13 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
             })
         }
 
+        const filterByIsNotWatched = (els) => {
+            return els.filter(el => {
+                const elSpan = el.querySelector('#overlays  #progress')
+                return !elSpan
+            })
+        }
+
 
         const url = window.location.href
         const channel = url.split('/')[3].substring(1)
@@ -164,6 +171,7 @@ async function addToQueue(sortBy, videosCount, isAscending, isFilterByDate, amou
             sortByViews(tempEls)
         }
         if (isFilterByDate) tempEls = filterByDate(tempEls)
+        if (isNotWatched) tempEls = filterByIsNotWatched(tempEls)
 
         if (!videosCount) videosCount = 200
         let foundVideosCount = 0
