@@ -14,17 +14,27 @@ function toggleFilterBy(filterByTerm, currTermIdx) {
 
 
 /**
-Adds a specified number of videos to the YouTube queue based on the given parameters.
-@async
-@function addToQueue
-@param {string} sortBy - The sorting criterion ('top' for sorting by views).
-@param {number} videosCount - The maximum number of videos to add to the queue.
-@param {boolean} isAscending - If true, the videos will be added in ascending order based on the sorting criterion.
-@param {boolean} isFilterByDate - If true, the videos will be filtered by the given date criteria.
-@param {number} amount - The number of units of the specified time period to filter videos by (e.g., if timePeriod is 'weeks', and amount is 2, videos older than 2 weeks will be filtered out).
-@param {string} timePeriod - The time period used for filtering videos ('day', 'days', 'week', 'weeks', 'month', 'months', 'year', 'years').
-@param {string} term - string term that can be split into multiple terms and filtered based on the delimiter
-@throws Will throw an error if something goes wrong while creating the queue.
+* Adds a specified number of videos to the YouTube queue based on the given parameters.
+* @async
+* @function addToQueue
+* @param {{
+*     sortBy:string 
+*     videosCount:number 
+*     isAscending:boolean 
+*     isFilterByDate:boolean 
+*     amount:number 
+*     timePeriod:string 
+*     term:string 
+* }} options
+* @param sortBy - The sorting criterion ('top' for sorting by views).
+* @param videosCount - The maximum number of videos to add to the queue.
+* @param isAscending - If true, the videos will be added in ascending order based on the sorting criterion.
+* @param isFilterByDate - If true, the videos will be filtered by the given date criteria.
+* @param amount - The number of units of the specified time period to filter videos by (e.g., if timePeriod is 'weeks', and amount is 2, videos older than 2 weeks will be filtered out).
+* @param timePeriod - The time period used for filtering videos ('day', 'days', 'week', 'weeks', 'month', 'months', 'year', 'years').
+* @param term - string term that can be split into multiple terms and filtered based on the delimiter
+* 
+* @throws Will throw an error if something goes wrong while creating the queue.
 */
 async function addToQueue({ sortBy, videosCount, isAscending, isFilterByDate, isNotWatched, amount, timePeriod, term }) {
     var elPlayListContainer = document.querySelector('#player-container')
