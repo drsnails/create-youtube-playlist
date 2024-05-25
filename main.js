@@ -26,20 +26,19 @@ function toggleFilterBy(filterByTerm, currTermIdx) {
 *     timePeriod:string 
 *     term:string 
 * }} options
-* @param sortBy - The sorting criterion ('top' for sorting by views).
-* @param videosCount - The maximum number of videos to add to the queue.
-* @param isAscending - If true, the videos will be added in ascending order based on the sorting criterion.
-* @param isFilterByDate - If true, the videos will be filtered by the given date criteria.
-* @param amount - The number of units of the specified time period to filter videos by (e.g., if timePeriod is 'weeks', and amount is 2, videos older than 2 weeks will be filtered out).
-* @param timePeriod - The time period used for filtering videos ('day', 'days', 'week', 'weeks', 'month', 'months', 'year', 'years').
-* @param term - string term that can be split into multiple terms and filtered based on the delimiter
+* @param options.sortBy - The sorting criterion ('top' for sorting by views).
+* @param options.videosCount - The maximum number of videos to add to the queue.
+* @param options.isAscending - If true, the videos will be added in ascending order based on the sorting criterion.
+* @param options.isFilterByDate - If true, the videos will be filtered by the given date criteria.
+* @param options.amount - The number of units of the specified time period to filter videos by (e.g., if timePeriod is 'weeks', and amount is 2, videos older than 2 weeks will be filtered out).
+* @param options.timePeriod - The time period used for filtering videos ('day', 'days', 'week', 'weeks', 'month', 'months', 'year', 'years').
+* @param options.term - string term that can be split into multiple terms and filtered based on the delimiter
 * 
 * @throws Will throw an error if something goes wrong while creating the queue.
 */
 async function addToQueue({ sortBy, videosCount, isAscending, isFilterByDate, isNotWatched, amount, timePeriod, term }) {
     var elPlayListContainer = document.querySelector('#player-container')
     var viewsSpansSelector = '#metadata-line > span:first-of-type'
-
     if (elPlayListContainer?.children.length) return
     try {
 
