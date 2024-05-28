@@ -1,5 +1,6 @@
 'use strict'
 
+
 window.addEventListener('DOMContentLoaded', () => {
     onInit()
 })
@@ -21,13 +22,22 @@ let gIsAscending = false
 // let gIsAll = true
 // let gFilterByTerm = 'key'
 
+/**
+ * @type {('days'|'weeks'|'months'|'years')[]}
+ */
 const periods = ['days', 'weeks', 'months', 'years']
 
+
+/**
+ * A map of the amount of days in each period of time.
+ * @type {Record<'days'|'weeks'|'months', string>}
+ */
 const periodDaysMap = {
     days: '13',
     weeks: '4',
     months: '11',
 }
+
 
 function onInit() {
     gElAddToQBtn = document.querySelector('.add-to-q')
@@ -80,6 +90,14 @@ function shakeBtn() {
 
 
 
+
+/**
+ * Handles the event when the "Add to Queue" button is clicked.
+ * Retrieves the necessary input values from the DOM and executes a script on the active tab.
+ *
+ * @param {MouseEvent} event - The event object.
+ * @returns {Promise<void>} - A promise that resolves when the script execution is complete.
+ */
 async function onAddToQueue({ target }) {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
     const elTermInput = document.querySelector('[name="search-term"]')
@@ -146,7 +164,12 @@ function onToggleAscending() {
 
 
 
-async function onToggleLoadVideos(ev) {
+/**
+ * Handles the event when the "Toggle Load Videos" button is clicked.
+ * Toggles between starting and stopping the video loading process.
+ * @returns {Promise<void>} - A promise that resolves when the video loading process is toggled.
+ */
+async function onToggleLoadVideos() {
     try {
         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
         const elTimeAmount = document.querySelector('.time-amount')
@@ -288,6 +311,13 @@ function onToggleFilterByContainer() {
 }
 
 
+/**
+ * Converts the amount and period of time to match YouTube time descriptions on their videos.
+ *
+ * @param {number} amount - The amount of time.
+ * @param {string} period - The period of time (days, weeks, months).
+ * @returns {Object} - An object containing the converted amount and period of time.
+ */
 function _convertYoutubeDates(amount, period) {
 
     switch (period) {
