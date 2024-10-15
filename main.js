@@ -186,7 +186,7 @@ async function addToQueue({ sortBy, videosCount, isAscending, isFilterByDate, is
         let foundVideosCount = 0
         let els = []
         // * reversing now because on date sort and and an ascending i want to have top [videosCount] from the bottom
-        if (isAscending && sortBy !== 'top') tempEls = tempEls.reverse() 
+        if (isAscending && sortBy !== 'top') tempEls = tempEls.reverse()
         for (const el of tempEls) {
             const title = el.querySelector('#video-title').innerText
             const isIncludes = evaluateExpression(term, title)
@@ -197,7 +197,7 @@ async function addToQueue({ sortBy, videosCount, isAscending, isFilterByDate, is
             if (foundVideosCount === videosCount) break
         }
         // * reversing now because on top sort and and an ascending i want to have top [videosCount] from the top
-        if (isAscending  && sortBy === 'top') els = els.reverse()
+        if (isAscending && sortBy === 'top') els = els.reverse()
         for (const el of els) {
             const mouseenterEvent = new Event('mouseenter');
             el.dispatchEvent(mouseenterEvent);
