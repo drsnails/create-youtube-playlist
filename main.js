@@ -39,7 +39,10 @@ function toggleFilterBy(filterByTerm, currTermIdx) {
 async function addToQueue({ sortBy, videosCount, isAscending, isFilterByDate, isNotWatched, amount, timePeriod, term }) {
     var elPlayListContainer = document.querySelector('#player-container')
     var viewsSpansSelector = '#metadata-line > span:first-of-type'
-    if (elPlayListContainer?.children.length) return
+
+    //* This is a check to not do anything if theres already something in the playlist, youtube changed
+    //* something and now the playlist always hav at least one child. commenting it out for now because its locking the app
+    // if (elPlayListContainer?.children.length) return
     try {
 
         chrome.runtime.sendMessage({ type: 'queue', isRunningQueue: true })
@@ -93,9 +96,9 @@ async function addToQueue({ sortBy, videosCount, isAscending, isFilterByDate, is
         const sleep = (time = 0) => new Promise((resolve) => setTimeout(resolve, time))
         const getViewsCount = (viewsStr) => {
             const numMultMap = {
-                K: 1000,
-                M: 1000000,
-                B: 1000000000
+                K: 1_000,
+                M: 1_000_000,
+                B: 1_000_000_000
             }
 
             let viewsCountStr = viewsStr.split(' ')[0]
@@ -196,13 +199,13 @@ async function addToQueue({ sortBy, videosCount, isAscending, isFilterByDate, is
             }
             if (foundVideosCount === videosCount) break
         }
-        // * reversing now because on top sort and and an ascending i want to have top [videosCount] from the top
+        // * reversing now because on top sort and and on ascending i want to have top [videosCount] from the top
         if (isAscending && sortBy === 'top') els = els.reverse()
         for (const el of els) {
             const mouseenterEvent = new Event('mouseenter');
             el.dispatchEvent(mouseenterEvent);
             var elAddToQueue = el.querySelector('ytd-thumbnail-overlay-toggle-button-renderer:nth-child(2) #icon.ytd-thumbnail-overlay-toggle-button-renderer')
-            await sleep(0) // ? multiple picks for the same videos without the sleep
+            await sleep(0) // ?multiple picks for the same videos without the sleep
             elAddToQueue?.click()
             const mouseleaveEvent = new Event('mouseleave');
             el.dispatchEvent(mouseleaveEvent);
