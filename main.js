@@ -307,10 +307,10 @@ function scrollToTime(amount, timePeriod, page = 0) {
         window.scrollTo(0, page * 10000 + window.scrollY + 1000)
         return innerRecursive(amount, timePeriod, page)
     } catch (err) {
-        console.log(err)
+        console.log('Something went wrong while loading more videos: ', err)
         alert('Something went wrong while loading more videos: ' + err)
     } finally {
-        console.log('finally inside load');
+        console.log('finally inside load')
     }
 
 
