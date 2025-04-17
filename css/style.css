@@ -119,48 +119,43 @@ select {
         transition: .2s;
 
         &:nth-child(1) {
-            --width: calc(5 / 5 * 100%);
-            width: var(--width);
+            width: calc(5 / 5 * 100%);
 
             input:checked+.ascending-label & {
-                --width: calc(1 / 5 * 100%);
+                width: calc(1 / 5 * 100%);
             }
         }
 
         &:nth-child(2) {
-            --width: calc(4 / 5 * 100%);
-            width: var(--width);
-
+            width: calc(4 / 5 * 100%);
+            transition-delay: 0.05s;
             input:checked+.ascending-label & {
-                --width: calc(2 / 5 * 100%);
+                width: calc(2 / 5 * 100%);
             }
         }
 
         &:nth-child(3) {
-            --width: calc(3 / 5 * 100%);
-            width: var(--width);
-
+            width: calc(3 / 5 * 100%);
+            transition-delay: 0.1s;
             input:checked+.ascending-label & {
-                --width: calc(3 / 5 * 100%);
+                width: calc(3 / 5 * 100%);
             }
         }
 
         &:nth-child(4) {
-            --width: calc(2 / 5 * 100%);
-            width: var(--width);
-
+            width: calc(2 / 5 * 100%);
+            transition-delay: 0.15s;
             input:checked+.ascending-label & {
-                --width: calc(4 / 5 * 100%);
+                width: calc(4 / 5 * 100%);
             }
 
         }
 
         &:nth-child(5) {
-            --width: calc(1 / 5 * 100%);
-            width: var(--width);
-
+            width: calc(1 / 5 * 100%);
+            transition-delay: 0.22s;
             input:checked+.ascending-label & {
-                --width: calc(5 / 5 * 100%);
+                width: calc(5 / 5 * 100%);
             }
         }
 
