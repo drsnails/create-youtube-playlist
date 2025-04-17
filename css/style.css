@@ -100,10 +100,10 @@ select {
 
 
 .sort-icon {
-    --width: 1em;
+    --width: 100%;
     --padding: 0em;
     --gap: 0.1em;
-    --aspect-ratio: 1.5;
+    --aspect-ratio: 5;
 
     width: var(--width);
     aspect-ratio: var(--aspect-ratio);
@@ -168,7 +168,7 @@ select {
     cursor: pointer;
     padding: 4px;
     height: 27px;
-    width: 27px;
+    width: 31px;
     display: flex;
     justify-content: center;
     align-items: center;
