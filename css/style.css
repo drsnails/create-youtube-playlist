@@ -110,10 +110,10 @@ select {
     align-items: center;
     border-radius: var(--borderRadius);
     transition: background-color 0.3s;
-}
-
-.ascending-label span {
-    transition: rotate 0.3s;
+    span {
+        transition: rotate 0.3s;
+    }
+    
 }
 
 input:checked+.ascending-label {
