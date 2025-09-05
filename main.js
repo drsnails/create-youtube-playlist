@@ -53,31 +53,44 @@ async function addToQueue({ sortBy, videosCount, isAscending, isFilterByDate, is
             const isInclude = new RegExp(searchKey, 'i')
             return isInclude.test(string)
         }
-        // a || (b && (!true))
-        const evaluateExpression = (expr, title) => {
+        /**
+     * Evaluates the given expression by replacing sub-expressions enclosed in parentheses with their results.
+     * @param {string} expr - The expression to evaluate.
+     * @param {string} title - The title to use for evaluation.
+     * @returns {boolean} - The result of the evaluation.
+     */
+        function evaluateExpression(expr, title) {
             while (true) {
-                const startIdx = expr.lastIndexOf('(')
+                const startIdx = expr.lastIndexOf('(') // z || (w && t && (a || b) && (c && (d || e)))
                 if (startIdx === -1) break
                 const endIdx = expr.indexOf(')', startIdx)
                 if (endIdx === -1) break
 
                 const subExpr = expr.substring(startIdx + 1, endIdx)
-                const result = evaluateSimpleExpression(subExpr, title) ? 'true' : 'false'
+                const result = evaluateSimpleExpression(subExpr, title) ? 'TRUE' : 'FALSE'
                 expr = expr.substring(0, startIdx) + result + expr.substring(endIdx + 1)
             }
             return evaluateSimpleExpression(expr, title)
-        };
+        }
 
-
-        // a || (b && (!(c && 'true' || f)))
-        const evaluateSimpleExpression = (expr, title) => {
-            const orTerms = expr.split('||').map(term => term.trim())
+        // a || b && c
+        /**
+         * Evaluates a simple expression based on the given title.
+         * The expression can contain logical operators (|| and &&) and terms.
+         * Terms can be true, false, or prefixed with '-' to negate them.
+         * 
+         * @param {string} expr - The expression to evaluate.
+         * @param {string} title - The title to evaluate the expression against.
+         * @returns {boolean} - The result of the evaluation.
+         */
+        function evaluateSimpleExpression(expr, title) {
+            const orTerms = expr.split(/\|\||OR/).map(term => term.trim())
 
             return orTerms.some(orTerm => {
-                const andTerms = orTerm.split('&&').map(term => term.trim())
+                const andTerms = orTerm.split(/&&|AND/).map(term => term.trim())
                 return andTerms.every(andTerm => {
-                    if (andTerm === 'true' || andTerm === '-false') return true
-                    if (andTerm === 'false' || andTerm === '-true') return false
+                    if (andTerm === 'TRUE' || andTerm === '-FALSE') return true
+                    if (andTerm === 'FALSE' || andTerm === '-TRUE') return false
 
                     if (andTerm.startsWith('-')) {
                         const term = andTerm.slice(1)
@@ -88,8 +101,18 @@ async function addToQueue({ sortBy, videosCount, isAscending, isFilterByDate, is
             })
         }
 
-        const evaluateTerm = (term, title) => {
-            const termRegexp = new RegExp(term, 'i')
+
+        function evaluateTerm(term, title) {
+            let regexFlag = 'i'
+            if (term[0] === '/') {
+                const lastSlashIdx = term.lastIndexOf('/')
+                if (lastSlashIdx > 0) { //* if second "/" exist, (not -1) and not equal to the first one, (not 0) 
+                    regexFlag = term.slice(lastSlashIdx + 1)
+                    term = term.slice(1, lastSlashIdx)
+                }
+            }
+
+            const termRegexp = new RegExp(term, regexFlag)
             return termRegexp.test(title)
         }
 
