@@ -1,145 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE" ="edge" />
-		<title>youtubeAddToQueue</title>
-		<link rel=stylesheet href=css/style.css>
-	</head>
 
-	<body>
-		<div class="main">
-			<div class="create-playlist">
-				<section class="filter-container">
-					<section class="sort-by-container">
-						<label for="sortBy">Sort By: </label>
-						<select name="sortBy" id="sortBy" class="sort-by">
-							<option value="date">Date</option>
-							<option value="top">Top</option>
-						</select>
-					</section>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE"="edge" />
+    <title>youtubeAddToQueue</title>
+    <link rel=stylesheet href=css/style.css>
+</head>
 
-					<section class="ascending-container">
-						<input
-							class="ascending-input"
-							type="checkbox"
-							name="ascending"
-							id="ascending"
-						/>
-						<label class="ascending-label" for="ascending">
-							<div class="sort-icon">
-								<div class="icon-line"></div>
-								<div class="icon-line"></div>
-								<div class="icon-line"></div>
-								<div class="icon-line"></div>
-								<div class="icon-line"></div>
-							</div>
-						</label>
-					</section>
-				</section>
+<body>
+    <div class="main">
+        <div class="create-playlist">
+            <section class="filter-container">
+                <section class="sort-by-container">
+                    <label for="sortBy">Sort By: </label>
+                    <select name="sortBy" id="sortBy" class="sort-by">
+                        <option value="date">Date</option>
+                        <option value="top">Top</option>
+                    </select>
+                </section>
 
-				<section class="key-search-container">
-					<section class="main-inputs">
-						<select class="num-of-vids">
-							<option value="">All</option>
-							<option value="10">10</option>
-							<option value="20">20</option>
-							<option value="50">50</option>
-							<option value="100">100</option>
-							<option value="150">150</option>
-						</select>
+                <section class="ascending-container">
+                    <input class="ascending-input" type="checkbox" name="ascending" id="ascending" />
+                    <label class="ascending-label" for="ascending">
+                        <div class="sort-icon">
+                            <div class="icon-line"></div>
+                            <div class="icon-line"></div>
+                            <div class="icon-line"></div>
+                            <div class="icon-line"></div>
+                            <div class="icon-line"></div>
+                        </div>
+                    </label>
+                </section>
+            </section>
 
-						<input type="search" name="search-term" placeholder="Search" />
-					</section>
-					<section class="filter-by-text">Filter By</section>
-					<section class="filter-checkboxes-container">
-						<div class="checkbox-wrapper-28 btn checkbox-container">
-							<input
-								id="checkbox1"
-								type="checkbox"
-								class="promoted-input-checkbox date-filter-checkbox"
-							/>
-							<svg><use xlink:href="#checkmark-28" /></svg>
-							<label class="checkbox-label" for="checkbox1">
-								<span class="checkbox-text">Date</span></label
-							>
-							<svg xmlns="http://www.w3.org/2000/svg" style="display: none">
-								<symbol id="checkmark-28" viewBox="0 0 24 24">
-									<path
-										stroke-linecap="round"
-										stroke-miterlimit="10"
-										fill="none"
-										d="M22.9 3.7l-15.2 16.6-6.6-7.1"
-									></path>
-								</symbol>
-							</svg>
-						</div>
-						<div class="checkbox-wrapper-28 btn checkbox-container">
-							<input
-								id="checkbox2"
-								type="checkbox"
-								class="promoted-input-checkbox not-watched-filter-checkbox"
-							/>
-							<svg><use xlink:href="#checkmark-28" /></svg>
-							<label for="checkbox2">
-								<span class="checkbox-text">First</span></label
-							>
-							<svg xmlns="http://www.w3.org/2000/svg" style="display: none">
-								<symbol id="checkmark-28" viewBox="0 0 24 24">
-									<path
-										stroke-linecap="round"
-										stroke-miterlimit="10"
-										fill="none"
-										d="M22.9 3.7l-15.2 16.6-6.6-7.1"
-									></path>
-								</symbol>
-							</svg>
-						</div>
-					</section>
-					<section class="btn-and-checkbox">
-						<button class="add-to-q btn">
-							<span>Create Playlist</span>
-							<img class="hide" src="./img/oval.svg" alt="" />
-						</button>
-						<section
-							data-tooltip="Filter by date?"
-							class="hide checkbox-container checkbox-wrapper-26"
-						>
-							<input
-								class="date-filter-checkbox"
-								type="checkbox"
-								id="_checkbox-26"
-							/>
-							<label for="_checkbox-26">
-								<div class="tick_mark"></div>
-							</label>
-						</section>
-					</section>
-				</section>
-			</div>
-			<div class="load-videos">
-				<div class="inputs">
-					<input
-						class="range time-amount"
-						type="number"
-						name="time-amount"
-						id=""
-						placeholder="1"
-					/>
-					<select name="period" id="">
-						<option value="days">Days</option>
-						<option value="weeks">Weeks</option>
-						<option value="months">Months</option>
-						<option value="years">Years</option>
-					</select>
-				</div>
-				<div class="btns">
-					<button class="load-videos-btn btn">Load More Videos</button>
-				</div>
-			</div>
-			<button class="clear-btn">Clear Inputs</button>
-		</div>
-		<script src="main.js"></script>
-		<script src="popup.js"></script>
-	</body>
+            <section class="key-search-container">
+                <section class="main-inputs">
+                    <select class="num-of-vids">
+                        <option value="">All</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="150">150</option>
+                    </select>
+
+                    <input type="search" name="search-term" placeholder="Search" />
+                </section>
+                <section class="filter-by-text">Filter By</section>
+                <section class="filter-checkboxes-container">
+                    <div class="checkbox-wrapper-28 btn checkbox-container">
+                        <input id="checkbox1" type="checkbox" class="promoted-input-checkbox date-filter-checkbox" />
+                        <svg>
+                            <use xlink:href="#checkmark-28" />
+                        </svg>
+                        <label class="checkbox-label" for="checkbox1">
+                            <span class="checkbox-text">Date</span></label>
+                        <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
+                            <symbol id="checkmark-28" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-miterlimit="10" fill="none"
+                                    d="M22.9 3.7l-15.2 16.6-6.6-7.1"></path>
+                            </symbol>
+                        </svg>
+                    </div>
+                    <div class="checkbox-wrapper-28 btn checkbox-container">
+                        <input id="checkbox2" type="checkbox"
+                            class="promoted-input-checkbox not-watched-filter-checkbox" />
+                        <svg>
+                            <use xlink:href="#checkmark-28" />
+                        </svg>
+                        <label for="checkbox2">
+                            <span class="checkbox-text">First</span></label>
+                        <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
+                            <symbol id="checkmark-28" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-miterlimit="10" fill="none"
+                                    d="M22.9 3.7l-15.2 16.6-6.6-7.1"></path>
+                            </symbol>
+                        </svg>
+                    </div>
+                </section>
+                <section class="btn-and-checkbox">
+                    <button class="add-to-q btn">
+                        <span>Create Playlist</span>
+                        <img class="hide" src="./img/oval.svg" alt="" />
+                    </button>
+                    <section data-tooltip="Filter by date?" class="hide checkbox-container checkbox-wrapper-26">
+                        <input class="date-filter-checkbox" type="checkbox" id="_checkbox-26" />
+                        <label for="_checkbox-26">
+                            <div class="tick_mark"></div>
+                        </label>
+                    </section>
+                </section>
+                <button class="add-from-tabs-btn">Create from open tabs</button>
+
+            </section>
+        </div>
+        <div class="load-videos">
+            <div class="inputs">
+                <input class="range time-amount" type="number" name="time-amount" id="" placeholder="1" />
+                <select name="period" id="">
+                    <option value="days">Days</option>
+                    <option value="weeks">Weeks</option>
+                    <option value="months">Months</option>
+                    <option value="years">Years</option>
+                </select>
+            </div>
+            <div class="btns">
+                <button class="load-videos-btn btn">Load More Videos</button>
+            </div>
+        </div>
+        <button class="clear-btn">Clear Inputs</button>
+    </div>
+    <script src="main.js"></script>
+    <script src="popup.js"></script>
+</body>
+
 </html>
