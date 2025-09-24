@@ -1,5 +1,34 @@
 'use strict'
 
+
+var debugMode = false
+const isDebugMode = () => debugMode || window.location.hash.includes('debug')
+
+function appLog(...args) {
+    console.clear()
+    console.error(...args)
+    if (isDebugMode()) {
+        const formattedArgs = args.map(x => isPrimitive(x) ? x : JSON.stringify(x, null, 4))
+        alert(formattedArgs.join(' - '))
+    }
+
+}
+
+document.addEventListener('keypress', onKeyPress)
+
+window.addEventListener('unload', () => {
+    document.removeEventListener('keypress', onKeyPress)
+})
+
+function onKeyPress(ev) {
+    if (ev.ctrlKey && ev.shiftKey && ev.code === 'KeyD') {
+        debugMode = !debugMode
+        alert(`Debug mode ${debugMode ? 'enabled' : 'disabled'}`)
+        return
+    }
+
+}
+
 let gIsStop = true
 let _gFilterByTerm = 'key'
 
@@ -239,8 +268,8 @@ async function addToQueue({ sortBy, videosCount, isAscending, isFilterByDate, is
 
         // chrome.runtime.sendMessage({ type: 'queue', isRunningQueue: false })
     } catch (err) {
-        console.log('err:', err)
-        alert('Something went wrong while creating the queue: ' + err)
+        console.log('isDebugMode():', isDebugMode())
+        appLog('Something went wrong while creating the queue: ', err)
     } finally {
         chrome.runtime.sendMessage({ type: 'queue', isRunningQueue: false })
     }
@@ -330,8 +359,7 @@ function scrollToTime(amount, timePeriod, page = 0) {
         window.scrollTo(0, page * 10000 + window.scrollY + 1000)
         return innerRecursive(amount, timePeriod, page)
     } catch (err) {
-        console.log('Something went wrong while loading more videos: ', err)
-        alert('Something went wrong while loading more videos: ' + err)
+        appLog('Something went wrong while loading more videos: ', err)
     } finally {
         console.log('finally inside load')
     }
@@ -359,3 +387,34 @@ function scrollToBottom(rounds) {
 // });
 
 
+
+
+
+
+/**
+ * Checks if a value is of a specific type.
+ *
+ * @param {*} value - The value to check.
+ * @param {string} type - The type to check against.
+ * @returns {boolean} - Returns true if the value is of the specified type, otherwise false.
+ */
+function isOfType(value, type) {
+    const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1)
+    let condition = true
+    if (type === 'number') {
+        condition = Number.isFinite(value)
+    }
+    return Object.prototype.toString.call(value) === `[object ${capitalize(type)}]` && condition
+}
+
+function isOfTypeFactory(type) {
+    return value => isOfType(value, type)
+}
+
+
+const isObject = isOfTypeFactory('object')
+const isArray = isOfTypeFactory('array')
+const isNumber = isOfTypeFactory('number')
+const isString = isOfTypeFactory('string')
+const isBoolean = isOfTypeFactory('boolean')
+const isPrimitive = (val) => isBoolean(val) || isNumber(val) || isString(val)

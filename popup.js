@@ -255,6 +255,22 @@ async function onStop() {
     }
 }
 
+async function onCreateFromTabs() {
+    try {
+        const response = await chrome.runtime.sendMessage({ type: 'CREATE_FROM_TABS' })
+        if (response?.success) {
+            console.log(`Successfully created playlist with ${response.videoCount} videos from open tabs`)
+            // Optionally show a success message to the user
+        } else if (response?.error) {
+            console.error('Failed to create playlist from tabs:', response.error)
+            alert(`Failed to create playlist: ${response.error}`)
+        }
+    } catch (error) {
+        console.error('Error creating playlist from tabs:', error)
+        alert('Error creating playlist from tabs: ' + error.message)
+    }
+}
+
 
 function addEventListeners() {
     gElAddToQBtn.addEventListener('click', onAddToQueue)
@@ -264,6 +280,7 @@ function addEventListeners() {
     document.querySelector('.time-amount').addEventListener('input', onInput)
     document.querySelector('select[name="period"]').addEventListener('change', onInput)
     document.querySelector('.clear-btn').addEventListener('click', onClearInputs)
+    document.querySelector('.add-from-tabs-btn').addEventListener('click', onCreateFromTabs)
 
 }
 
