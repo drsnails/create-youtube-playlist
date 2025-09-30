@@ -42,7 +42,7 @@ select {
     display: flex;
     flex-direction: column;
     /* align-items: center; */
-    width: 75%;
+    width: 88%;
 }
 .load-videos {
     margin-top: 20%;
@@ -601,7 +601,7 @@ span[data-tooltip] {}
     transition: 0.2s ease-out;
     &:has(input:checked) {
         /* box-shadow: inset 0px 0px 0 2px #ff0200; */
-        box-shadow: inset 0px 0px 0 35px #ff0200;
+        box-shadow: inset 0px 0px 0 40px #ff0200;
 
     }
 
@@ -619,7 +619,7 @@ span[data-tooltip] {}
 }
 
 .checkbox-wrapper-28 {
-    --size-2: 24px;
+    --size-2: 28px;
     position: relative;
 }
 
