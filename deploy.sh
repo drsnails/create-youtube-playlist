@@ -22,7 +22,7 @@ deploy_path="../deploy/$folder_name"
 rm -rf "$deploy_path"
 
 #* Copy all files except .git directory
-rsync -av --exclude '.git' --exclude 'deploy.sh' . "$deploy_path"
+rsync -av --exclude '.git' --exclude 'deploy.sh' --exclude 'node_modules' --exclude 'tests' --exclude 'scripts' --exclude 'test-results' --exclude 'package*.json' --exclude '*.log' --exclude 'youtube-debug-*.json' . "$deploy_path"
 
 #* Create zip file
 cd "../deploy"
@@ -31,4 +31,4 @@ cd "../$current_dir"
 
 echo "✅ Deployment complete!"
 echo "📁 Folder created: $deploy_path"
-echo "📦 Zip created: ../deploy/${folder_name}.zip" 
+echo "📦 Zip created: ../deploy/${folder_name}.zip"

@@ -1,383 +1,154 @@
-'use strict'
-
-
-window.addEventListener('DOMContentLoaded', () => {
-    onInit()
-})
-
-const storageKey = 'inputsData'
-const gTerms = ['key', 'top']
-let gCurrTermIdx = 0
-let gElAddToQBtn
-let gElLoadVideosBtn
-let gElStopBtn
-let gElAscendingInput
-let gTopVideosBtn
-let gTopVideosContainer
-let elTimeAmount
-let elPeriod
-// let gElToggleFilterByBtn
-let gIsRunning = false
-let gIsAscending = false
-// let gIsAll = true
-// let gFilterByTerm = 'key'
-
-/**
- * @type {('days'|'weeks'|'months'|'years')[]}
- */
-const periods = ['days', 'weeks', 'months', 'years']
-
-
-/**
- * A map of the amount of days in each period of time.
- * @type {Record<'days'|'weeks'|'months', string>}
- */
-const periodDaysMap = {
-    days: '13',
-    weeks: '4',
-    months: '11',
-}
-
-
-function onInit() {
-    gElAddToQBtn = document.querySelector('.add-to-q')
-    gElLoadVideosBtn = document.querySelector('.load-videos-btn')
-    gElStopBtn = document.querySelector('.stop-btn')
-    gElAscendingInput = document.querySelector('.ascending-input')
-    // gElToggleFilterByBtn = document.querySelector('.toggle-filterby-btn')
-    gTopVideosBtn = document.querySelector('.top-videos-btn')
-    // console.log('gTopVideosBtn:', gTopVideosBtn)
-    gTopVideosContainer = document.querySelector('.top-videos-container')
-    elTimeAmount = document.querySelector('.time-amount')
-    elPeriod = document.querySelector('select[name="period"]')
-    addEventListeners()
-    const inputsData = loadFromStorage(storageKey)
-    if (inputsData) {
-        const { term, isFilterByDate, isNotWatched, videosCount, period, amount, sortBy, isAscending } = inputsData
-        const elTermInput = document.querySelector('[name="search-term"]')
-        const elFilterCheckbox = document.querySelector('.date-filter-checkbox')
-        const elIsNotWatched = document.querySelector('.not-watched-filter-checkbox')
-        const elVideosCount = document.querySelector('select.num-of-vids')
-        const elSortBy = document.querySelector('select.sort-by')
-
-        elTermInput.value = term
-        elFilterCheckbox.checked = isFilterByDate
-        elIsNotWatched.checked = isNotWatched
-        elVideosCount.value = videosCount || ''
-        elPeriod.value = period
-        elTimeAmount.value = amount
-        elSortBy.value = sortBy
-        gElAscendingInput.checked = isAscending
-        gIsAscending = isAscending
+(() => {
+    'use strict'
+    const files = ['services/core.js', 'youtube/selectors.js', 'youtube/adapter.js', 'services/diagnostics.js', 'main.js', 'content.js']
+    const storageKey = 'inputsData'
+    let activeTab, queueRunning = false, scrollRunning = false, lastPopupError = null
+    const $ = selector => document.querySelector(selector)
+    const status = (message, error = false) => {
+        $('.operation-status').textContent = message
+        $('.operation-status').dataset.error = String(error)
+        if (error) lastPopupError = message
     }
-    chrome.runtime.onMessage.addListener(({ type, isRunningScroll }) => {
-        if (type === 'queue') {
-            onToggleImgLoader()
-        } else if (type === 'scroll') {
-            changeStopBtnTxt(isRunningScroll)
+
+    function options() {
+        return {
+            term: $('[name="search-term"]').value,
+            isFilterByDate: $('.date-filter-checkbox').checked,
+            isNotWatched: $('.not-watched-filter-checkbox').checked,
+            batchQueue: $('.batch-queue-checkbox').checked,
+            videosCount: +$('.num-of-vids').value,
+            sortBy: $('.sort-by').value,
+            isAscending: $('.ascending-input').checked,
+            amount: $('.time-amount').value === '' ? 1 : +$('.time-amount').value,
+            timePeriod: $('[name="period"]').value
         }
+    }
+
+    function save() { localStorage.setItem(storageKey, JSON.stringify(options())) }
+    function restore() {
+        let saved
+        try { saved = JSON.parse(localStorage.getItem(storageKey)) } catch { return }
+        if (!saved) return
+        $('[name="search-term"]').value = saved.term || ''
+        $('.date-filter-checkbox').checked = !!saved.isFilterByDate
+        $('.not-watched-filter-checkbox').checked = !!saved.isNotWatched
+        $('.batch-queue-checkbox').checked = !!saved.batchQueue
+        $('.num-of-vids').value = saved.videosCount || ''
+        $('.sort-by').value = saved.sortBy || 'date'
+        $('.ascending-input').checked = !!saved.isAscending
+        $('.time-amount').value = saved.amount ?? ''
+        $('[name="period"]').value = saved.timePeriod || saved.period || 'days'
+    }
+
+    async function ensureTab() {
+        if (!activeTab) [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true })
+        if (!activeTab || !/^https:\/\/www\.youtube\.com\//.test(activeTab.url || '')) {
+            throw new Error('Open a YouTube page first, then reopen this popup.')
+        }
+    }
+
+    async function ensureContent() {
+        await ensureTab()
+        // Idempotent modules also support tabs opened before the extension was reloaded.
+        await chrome.scripting.executeScript({ target: { tabId: activeTab.id }, files })
+    }
+
+    async function request(type, requestOptions) {
+        await ensureContent()
+        const response = await chrome.tabs.sendMessage(activeTab.id, { type, options: requestOptions })
+        if (!response?.success) throw new Error(response?.error || 'The page did not respond. Reload it and try again.')
+        return response
+    }
+
+    function setState(state) {
+        queueRunning = !!state.queueRunning
+        scrollRunning = !!state.scrollRunning
+        $('.add-to-q').disabled = queueRunning || scrollRunning
+        $('.add-to-q img').classList.toggle('hide', !queueRunning)
+        $('.add-to-q span').classList.toggle('hide', queueRunning)
+        $('.add-from-tabs-btn').disabled = queueRunning || scrollRunning
+        $('.batch-queue-checkbox').disabled = queueRunning || scrollRunning
+        $('.load-videos-btn').textContent = queueRunning || scrollRunning ? 'Stop' : 'Load More Videos'
+        if (state.lastResult) status(state.lastResult.message || state.lastResult.error, !state.lastResult.success)
+        else if (queueRunning || scrollRunning) status(queueRunning ? 'Creating your queue…' : 'Loading videos…')
+    }
+
+    async function guarded(button, action) {
+        button.disabled = true
+        try { await action() }
+        catch (error) { status(error.message, true) }
+        finally { button.disabled = button.matches('.add-to-q, .add-from-tabs-btn') && (queueRunning || scrollRunning) }
+    }
+
+    async function exportReport() {
+        status('Capturing this page…')
+        // This path needs neither the adapter nor the controller/message listener.
+        await ensureTab()
+        await chrome.scripting.executeScript({ target: { tabId: activeTab.id }, files: ['services/diagnostics.js'] })
+        const results = await chrome.scripting.executeScript({
+            target: { tabId: activeTab.id },
+            func: (selectedOptions, popupError) => {
+                const app = globalThis.PlaylistApp
+                let state
+                try { state = app.controller?.state?.() || { controllerUnavailable: true } }
+                catch (error) { state = { controllerError: error.message } }
+                return app.diagnostics.capture(selectedOptions, { ...state, popupError })
+            },
+            args: [options(), lastPopupError]
+        })
+        const report = results[0]?.result
+        if (!report) throw new Error('Page capture failed. Reload the page and try again.')
+        const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `youtube-debug-${report.capturedAt.replace(/[:.]/g, '-')}.json`
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
+        setTimeout(() => URL.revokeObjectURL(url), 30000)
+        status('Report download started. Attach the JSON file in chat and describe what failed.')
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        restore()
+        for (const input of document.querySelectorAll('input, select')) input.addEventListener('change', save)
+        $('.add-to-q').addEventListener('click', () => guarded($('.add-to-q'), async () => {
+            save()
+            status('Creating your queue…')
+            const result = await request('PLAYLIST_QUEUE', options())
+            status(result.message)
+        }))
+        $('.load-videos-btn').addEventListener('click', () => guarded($('.load-videos-btn'), async () => {
+            save()
+            if (queueRunning || scrollRunning) {
+                await request('PLAYLIST_STOP')
+                status('Stopping…')
+            } else {
+                await request('PLAYLIST_LOAD', options())
+                status('Loading videos… You can close this popup and reopen it to stop.')
+            }
+        }))
+        $('.export-report-btn').addEventListener('click', () => guarded($('.export-report-btn'), exportReport))
+        $('.clear-btn').addEventListener('click', () => {
+            localStorage.removeItem(storageKey)
+            $('[name="search-term"]').value = ''
+            $('.date-filter-checkbox').checked = $('.not-watched-filter-checkbox').checked = $('.ascending-input').checked = false
+            $('.batch-queue-checkbox').checked = false
+            $('.num-of-vids').value = $('.time-amount').value = ''
+            $('.sort-by').value = 'date'
+            $('[name="period"]').value = 'days'
+        })
+        $('.add-from-tabs-btn').addEventListener('click', () => guarded($('.add-from-tabs-btn'), async () => {
+            await ensureContent()
+            const result = await chrome.runtime.sendMessage({ type: 'CREATE_FROM_TABS', tabId: activeTab.id })
+            if (!result?.success) throw new Error(result?.error || 'Could not create the queue.')
+            status(`Opened a queue with ${result.videoCount} videos.${result.omitted ? ` ${result.omitted} additional videos exceed the 50-video URL limit.` : ''}`)
+        }))
+        chrome.runtime.onMessage.addListener((message, sender) => {
+            if (message.type === 'PLAYLIST_STATE' && sender.tab?.id === activeTab?.id) setState(message)
+        })
+        try { setState(await request('PLAYLIST_STATUS')) }
+        catch (error) { status(error.message, true) }
     })
-
-}
-
-
-function shakeBtn() {
-    gElAddToQBtn.classList.add('shake-animation')
-    setTimeout(() => {
-        gElAddToQBtn.classList.remove('shake-animation')
-    }, 500)
-}
-
-
-
-
-/**
- * Handles the event when the "Add to Queue" button is clicked.
- * Retrieves the necessary input values from the DOM and executes a script on the active tab.
- *
- * @param {MouseEvent} event - The event object.
- * @returns {Promise<void>} - A promise that resolves when the script execution is complete.
- */
-async function onAddToQueue({ target }) {
-    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
-    const elTermInput = document.querySelector('[name="search-term"]')
-    const term = elTermInput.value
-    const isFilterByDate = !!document.querySelector('.date-filter-checkbox')?.checked
-    const isNotWatched = !!document.querySelector('.not-watched-filter-checkbox')?.checked
-    // let topVideosCount = +document.querySelector('.top-videos-container input').value
-    let videosCount = +document.querySelector('select.num-of-vids').value
-    let sortBy = document.querySelector('select.sort-by').value
-
-    const period = document.querySelector('select[name="period"]').value
-    let amount = +document.querySelector('.time-amount').value
-    if (!amount) amount = 1
-    // const { term, isFilterByDate, videosCount, period, amount, sortBy } = inputsData
-    // console.log('gElAscendingInput.checked:', gElAscendingInput.checked)
-    const inputsData = {
-        term,
-        isFilterByDate,
-        isNotWatched,
-        videosCount,
-        period,
-        amount,
-        sortBy,
-        isAscending: gElAscendingInput.checked
-    }
-    saveToStorage(storageKey, inputsData)
-
-    try {
-        await chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            function: addToQueue,
-            args: [{
-                sortBy,
-                videosCount,
-                isAscending: gIsAscending,
-                isFilterByDate,
-                isNotWatched,
-                amount,
-                timePeriod: period,
-                term
-            }]
-        })
-    } catch (error) {
-        console.log('error:', error)
-
-    } finally {
-
-    }
-
-
-}
-
-
-function onToggleAscending() {
-    gIsAscending = this.checked
-}
-
-
-
-/**
- * Handles the event when the "Toggle Load Videos" button is clicked.
- * Toggles between starting and stopping the video loading process.
- * @returns {Promise<void>} - A promise that resolves when the video loading process is toggled.
- */
-async function onToggleLoadVideos() {
-    try {
-        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
-        const elTimeAmount = document.querySelector('.time-amount')
-        const elPeriod = document.querySelector('select[name="period"]')
-        const period = elPeriod.value
-        let amount = +elTimeAmount.value
-        if (!amount) amount = 1
-        const func = gIsRunning ? stop : scrollToTime
-        gIsRunning = !gIsRunning
-        changeStopBtnTxt(gIsRunning)
-
-        await chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            function: func,
-            args: [amount, period]
-        })
-    } catch (err) {
-        console.error(err)
-    } finally {
-        // console.log('finally load');
-    }
-}
-
-function onInput() {
-    const _amount = elTimeAmount.value
-    const _period = elPeriod.value
-    console.log({ _amount, _period })
-
-    let { amount, period } = _convertYoutubeDates(+_amount, _period)
-    if (_amount < 0) {
-        let prevPeriodIdx = periods.indexOf(period) - 1
-        period = (prevPeriodIdx < 0) ? 'days' : periods[prevPeriodIdx]
-        amount = (prevPeriodIdx < 0) ? '' : periodDaysMap[period]
-    }
-    elTimeAmount.value = (_amount && _amount !== '0') ? amount : ''
-    elPeriod.value = period
-}
-
-async function onToggleFilterBy() {
-    try {
-        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
-        // let nextTermIdx = gTerms.findIndex(term => term === gTerms[gCurrTermIdx]) + 1
-        gCurrTermIdx = getNextTermIdx()
-        changeToggleFilterTermTxt()
-        onToggleFilterByContainer()
-        chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            function: toggleFilterBy,
-            args: [gTerms[gCurrTermIdx], gCurrTermIdx]
-        })
-    } catch (err) {
-        console.log('err:', err)
-    }
-
-}
-
-
-function onClearInputs() {
-
-    const elTermInput = document.querySelector('[name="search-term"]')
-    const elFilterCheckbox = document.querySelector('.date-filter-checkbox')
-    const elVideosCount = document.querySelector('select.num-of-vids')
-    const elSortBy = document.querySelector('select.sort-by')
-    const elIsNotWatched = document.querySelector('.not-watched-filter-checkbox')
-
-    elPeriod.value = 'days'
-    elTimeAmount.value = null
-    gElAscendingInput.checked = false
-
-    elTermInput.value = ''
-    elFilterCheckbox.checked = false
-    elIsNotWatched.checked = false
-    elVideosCount.value = ''
-    elSortBy.value = 'date'
-    saveToStorage(storageKey, null)
-
-}
-
-async function onStop() {
-    try {
-
-        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
-        chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            function: stop,
-            args: []
-        })
-    } catch (err) {
-        console.error(err)
-    }
-}
-
-async function onCreateFromTabs() {
-    try {
-        const response = await chrome.runtime.sendMessage({ type: 'CREATE_FROM_TABS' })
-        if (response?.success) {
-            console.log(`Successfully created playlist with ${response.videoCount} videos from open tabs`)
-            // Optionally show a success message to the user
-        } else if (response?.error) {
-            console.error('Failed to create playlist from tabs:', response.error)
-            alert(`Failed to create playlist: ${response.error}`)
-        }
-    } catch (error) {
-        console.error('Error creating playlist from tabs:', error)
-        alert('Error creating playlist from tabs: ' + error.message)
-    }
-}
-
-
-function addEventListeners() {
-    gElAddToQBtn.addEventListener('click', onAddToQueue)
-    // gTopVideosBtn.addEventListener('click', onAddToQueue)
-    gElLoadVideosBtn.addEventListener('click', onToggleLoadVideos)
-    gElAscendingInput.addEventListener('input', onToggleAscending)
-    document.querySelector('.time-amount').addEventListener('input', onInput)
-    document.querySelector('select[name="period"]').addEventListener('change', onInput)
-    document.querySelector('.clear-btn').addEventListener('click', onClearInputs)
-    document.querySelector('.add-from-tabs-btn').addEventListener('click', onCreateFromTabs)
-
-}
-
-function changeStopBtnTxt(isRunning) {
-    gIsRunning = isRunning
-    const txt = isRunning ? 'Stop' : 'Load More Videos'
-    gElLoadVideosBtn.innerText = txt
-
-}
-
-function changeToggleFilterTermTxt() {
-    let nextTermIdx = getNextTermIdx()
-    let nextTerm = gTerms[nextTermIdx]
-    let txt
-    if (nextTerm === 'top') {
-        txt = 'top videos'
-    } else if (nextTerm === 'key') {
-        txt = 'search by keyword'
-    }
-    gElToggleFilterByBtn.querySelector('span').innerText = txt
-}
-
-function getNextTermIdx() {
-    let nextTermIdx = gCurrTermIdx + 1
-    if (nextTermIdx === gTerms.length) nextTermIdx = 0
-    return nextTermIdx
-}
-
-function onToggleImgLoader() {
-    const elBtn = gTerms[gCurrTermIdx] === 'key' ? gElAddToQBtn : gTopVideosBtn
-    elBtn.querySelector('img').classList.toggle('hide')
-    elBtn.querySelector('span').classList.toggle('hide')
-}
-
-function onToggleFilterByContainer() {
-    gTopVideosContainer.classList.toggle('hide')
-    document.querySelector('.key-search-container').classList.toggle('hide')
-}
-
-
-/**
- * Converts the amount and period of time to match YouTube time descriptions on their videos.
- *
- * @param {number} amount - The amount of time.
- * @param {string} period - The period of time (days, weeks, months).
- * @returns {Object} - An object containing the converted amount and period of time.
- */
-function _convertYoutubeDates(amount, period) {
-
-    switch (period) {
-        case 'days': {
-            const res = { amount, period: 'days' }
-            if (amount >= 365) {
-                res.period = 'years'
-                res.amount = parseInt(amount / 365)
-            } else if (amount >= 30) {
-                res.period = 'months'
-                res.amount = parseInt(amount / 30)
-            } else if (amount >= 14) {
-                res.period = 'weeks'
-                res.amount = parseInt(amount / 7)
-            }
-            return res
-        }
-        case 'weeks': {
-            const res = { amount, period: 'weeks' }
-            if (amount >= 52) {
-                res.period = 'years'
-                res.amount = parseInt(amount / 52)
-            } else if (amount >= 4.4) {
-                res.period = 'months'
-                res.amount = parseInt(amount / 4.4)
-            }
-
-            return res
-        }
-        case 'months': {
-            const res = { amount, period: 'months' }
-            if (amount >= 12) {
-                res.period = 'years'
-                res.amount = parseInt(amount / 12)
-            }
-            return res
-        }
-
-        default:
-            return { amount, period }
-    }
-
-
-}
-
-function saveToStorage(key, data) {
-    localStorage.setItem(key, JSON.stringify(data))
-}
-
-function loadFromStorage(key) {
-    const data = localStorage.getItem(key)
-    return JSON.parse(data)
-}
+})()

@@ -58,6 +58,21 @@ select {
     /* width: 80%; */
 }
 
+.batch-queue-option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.batch-queue-option input {
+    width: auto;
+    height: auto;
+    margin: 0;
+}
+
 :is(.create-playlist .add-to-q) {
     height: 40px;
 }
@@ -277,9 +292,9 @@ input {
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    height: 550px;
+    min-height: 550px;
     width: 300px;
-    padding: 50px 20px;
+    padding: 24px 20px;
     font-size: 2em;
 }
 
@@ -372,6 +387,33 @@ input {
     font-size: 16px;
     cursor: pointer;
 }
+
+.diagnostics-controls {
+    width: 100%;
+    margin-top: 18px;
+    text-align: center;
+}
+
+.export-report-btn {
+    width: 100%;
+    padding: 9px;
+    border: 1px solid #888;
+    border-radius: 3px;
+    background: #333;
+    color: white;
+    font-size: 14px;
+}
+
+.report-help, .operation-status {
+    font-size: 12px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.report-help { color: #bbb; margin: 8px 0 0; }
+.operation-status { width: 100%; margin: 10px 0 0; }
+.operation-status[data-error="true"] { color: #ff9d9d; }
+button:disabled { opacity: .6; cursor: wait; }
 
 
 @keyframes shake {

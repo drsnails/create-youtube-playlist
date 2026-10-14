@@ -3,7 +3,6 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE"="edge" />
     <title>youtubeAddToQueue</title>
     <link rel=stylesheet href=css/style.css>
 </head>
@@ -79,6 +78,10 @@
                         </svg>
                     </div>
                 </section>
+                <label class="batch-queue-option" title="Submits up to 3 videos before checking the full queue order. Stops if verification fails. Already submitted additions may finish after Stop.">
+                    <input type="checkbox" class="batch-queue-checkbox" />
+                    Faster queuing (experimental)
+                </label>
                 <section class="btn-and-checkbox">
                     <button class="add-to-q btn">
                         <span>Create Playlist</span>
@@ -110,8 +113,12 @@
             </div>
         </div>
         <button class="clear-btn">Clear Inputs</button>
+        <section class="diagnostics-controls">
+            <button class="export-report-btn" type="button">Export debug report</button>
+            <p class="report-help">Downloads a file to attach in chat. Includes page text and your filters; account headers and form contents are omitted.</p>
+        </section>
+        <p class="operation-status" role="status" aria-live="polite"></p>
     </div>
-    <script src="main.js"></script>
     <script src="popup.js"></script>
 </body>
 
