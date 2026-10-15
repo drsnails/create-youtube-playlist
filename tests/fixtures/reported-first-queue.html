@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><body>
+<!-- Reduced from the October 15 reports: the first queued video has no player link.
+     The collapsed queue is populated only after its expand button is clicked. -->
+<yt-lockup-view-model>
+  <a href="/watch?v=aaaaaaaaaaa">Example video</a>
+  <h3><a href="/watch?v=aaaaaaaaaaa">Example video</a></h3>
+  <yt-content-metadata-view-model><span>1 day ago</span><span>100 views</span></yt-content-metadata-view-model>
+  <button aria-label="More actions">More</button>
+</yt-lockup-view-model>
+<template id="player-template">
+  <ytd-miniplayer class="ytdMiniplayerComponentHost ytdMiniplayerComponentVisible">
+    <a class="ytp-title-link">Example video</a>
+    <a class="ytp-next-button" href="/watch?v=rrrrrrrrrrr">Next recommendation</a>
+    <div class="ytp-playlist-menu"><div class="ytp-playlist-menu-items" role="menu"></div></div>
+    <ytd-miniplayer-info-bar class="ytdMiniplayerInfoBarHost ytdMiniplayerInfoBarHasPlaylistData">
+      <h1 class="ytdMiniplayerInfoBarTitle">Example video</h1>
+      <div class="ytdMiniplayerInfoBarSubtitle"><span class="ytdMiniplayerInfoBarSubtitleText">Queue</span></div>
+      <div class="ytdMiniplayerInfoBarPlaylistIndex"><span>•</span><span>1 / 1</span></div>
+      <div class="ytdMiniplayerInfoBarExpand"><button aria-expanded="false">Expand queue</button></div>
+    </ytd-miniplayer-info-bar>
+    <ytd-playlist-panel-renderer hidden></ytd-playlist-panel-renderer>
+  </ytd-miniplayer>
+</template>
+</body></html>

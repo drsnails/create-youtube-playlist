@@ -3,7 +3,7 @@
     const app = globalThis.PlaylistApp ||= {}
     if (app.selectors) return
     app.selectors = {
-        version: '2026-10-14.5',
+        version: '2026-10-15.1',
         cards: ['ytd-rich-grid-media', 'ytd-grid-video-renderer', 'ytd-video-renderer', 'ytd-compact-video-renderer', 'ytd-playlist-video-renderer', 'yt-lockup-view-model'],
         videoLinks: 'a[href*="/watch?"], a[href*="/shorts/"]',
         titles: ['#video-title', '[id="video-title-link"]', '.yt-lockup-metadata-view-model__title', '.ytLockupMetadataViewModelTitle', 'h3 a', 'a[title]'],

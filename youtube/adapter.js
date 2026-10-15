@@ -175,8 +175,15 @@
         element.scrollIntoView({ block: 'nearest' })
         element.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }))
         element.dispatchEvent(new MouseEvent('mouseenter'))
-        let menuButton = null, openedMenu = false
+        let menuButton = null, openedMenu = false, reader = null
+        const expandControl = () => document.querySelector(s.queuePlayer)?.querySelector(s.queueExpandButton)
+        const hadExpandControl = !!expandControl()
         try {
+            // Collapsed info-bar queues can omit every queued link, including the
+            // first/current video. Read existing IDs before clicking so expanding
+            // an old queue cannot be mistaken for a successful duplicate addition.
+            if (!deferConfirmation && hadExpandControl) reader = await openQueueReader(isCancelled)
+            const previousIds = reader?.ids
             const action = await waitFor(() => {
                 const control = queueControl(element)
                 if (control) return { control }
@@ -214,13 +221,29 @@
                 await sleep(0)
                 return receipt
             }
-            const verified = await waitFor(() => {
-                const count = queueCount(video.id)
+            const confirmsAddition = () => {
+                const current = reader?.read()
+                const countIn = ids => ids?.filter(id => id === video.id).length || 0
+                const newEntry = reader ? current && countIn(current) > countIn(previousIds) : queueCount(video.id) > before
                 const removedAfter = [...element.querySelectorAll(s.queueControls)].filter(node => s.removeQueueLabel.test(label(node)) && visible(node)).length
-                return count > before || removedAfter > removedBefore
-            }, 4500, isCancelled, { attributeFilter: ['href', 'aria-label', 'title', 'data-tooltip-text', 'hidden', 'aria-hidden'] })
+                return newEntry || removedAfter > removedBefore
+            }
+            const observe = { attributeFilter: ['href', 'aria-label', 'title', 'data-tooltip-text', 'hidden', 'aria-hidden', 'aria-expanded'] }
+            let verified = await waitFor(() => {
+                if (confirmsAddition()) return { confirmed: true }
+                const expand = expandControl()
+                // Only open after a click when this is a new queue or its existing
+                // IDs were read above. Otherwise there is no trustworthy baseline.
+                return expand && visible(expand) && expand.getAttribute('aria-expanded') === 'false' &&
+                    (!hadExpandControl || previousIds) ? { open: true } : null
+            }, 4500, isCancelled, observe)
+            if (verified?.open) {
+                reader = await openQueueReader(isCancelled)
+                verified = reader && await waitFor(confirmsAddition, 4500, isCancelled, observe)
+            }
             if (!verified) throw new Error(`Could not confirm that "${video.title}" was added. Export a debug report; the click will not be retried automatically.`)
             recordQueueItem(receipt, performance.now())
+            reader?.close()
             // Yield to YouTube's event handlers between clicks without a fixed pause.
             await sleep(0)
         } finally {
